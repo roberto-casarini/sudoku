@@ -3,28 +3,41 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Livewire\Wireables\SingleCellProps;
 use Livewire\Attributes\Computed;
 
 class SingleCell extends Component
 {
-    public SingleCellProps $props;  
+    public $showPossibilities = true;
 
-    public array $borders;
+    public array $possibilities = [];
 
-    public $presetting = true;
+    public $cell = [
+        'xCoordinate' => '',
+        'yCoordinate' => '',
+    ];
 
-    public $numberSelectorVisible = false;
+    public $cellValue = '';
 
-    public function mount(SingleCellProps $props, array $borders = [])
+    public $preSetting = true;
+
+    public array $borders = [];
+
+    public $edit = false;
+
+    protected $listeners = [
+        'closeEdit' => 'unsetEdit',
+        'sendValues' => 'setCellValue'
+    ];
+
+    public function mount($cell)
     {   
-        $this->props = $props;
-        $this->borders = $borders;
+        $this->cell = $cell;
+        $this->setBorders();
     }
 
     public function hasPossibility($value): bool
     {
-        return in_array((int) $value, $this->props->possibilities);
+        return in_array((int) $value, $this->possibilities);
     }
 
     public function hasBorder($value): bool
@@ -32,22 +45,65 @@ class SingleCell extends Component
         return in_array($value, $this->borders);
     }
 
-    public function setCellValue($cell, $value)
+    public function hasNoBorder(): bool
     {
-        dd($this->props->getCoordinate());
-        if ($cell == $this->props->getCoordinate()) {
-            $this->props->showPossibilities = false;
-            $this->props->cellValue = $value;
-            $this->showSelectNumber = false;
+        return count($this->borders) == 0;
+    }
+
+    public function setEdit()
+    {
+        $this->edit = true;
+    }
+
+    public function unsetEdit($cell)
+    {
+        if ($cell == $this->cellToText()) {
+            $this->edit = false;
         }
     }
 
-    public function setPossibilityValues($cell, $values)
+    #[Computed]
+    public function cellToText() 
     {
-        if ($cell == $this->props->getCoordinate()) {
-            $this->props->showPossibilities = true;
-            $this->props->possibilities = array_map('intval', explode(",", $values));
-            $this->showSelectNumber = false;
+        return $this->cell['xCoordinate'] . $this->cell['yCoordinate'];
+    }
+
+    public function setCellValue($cell, $values)
+    {
+        if ($cell == $this->cellToText()) {
+            if (count($values) == 1) {
+                $this->showPossibilities = false;
+                $this->cellValue = $values[0];
+            } else {
+                $this->showPossibilities = true;
+                $this->possibilities = $values;
+            }
+            $this->edit = false;
+        }
+    }
+
+    private function setBorders(): void
+    {
+        switch($this->cell['xCoordinate']) {
+            case 'A':
+                $this->borders[] = 'left';
+                break;
+            case 'C':
+            case 'F':
+            case 'I':
+                $this->borders[] = 'right';
+                break;
+        }
+
+        switch($this->cell['yCoordinate']) {
+            case 1:
+                $this->borders[] = 'top';
+                break;
+            case 3:
+            case 6:
+            case 9:
+                $this->borders[] = 'bottom';
+                break;
         }
     }
 
@@ -59,17 +115,12 @@ class SingleCell extends Component
     #[Computed]
     public function showXLabel(): bool
     {
-        return $this->props->yCoordinate == 1;
+        return $this->cell['yCoordinate'] == 1;
     }
 
     #[Computed]
     public function showYLabel(): bool
     {
-        return $this->props->xCoordinate == 'A';
-    }
-
-    public function showNumberSelector()
-    {
-        $this->numberSelectorVisible = true;
+        return $this->cell['xCoordinate'] == 'A';
     }
 }

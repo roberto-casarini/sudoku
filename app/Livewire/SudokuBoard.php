@@ -13,10 +13,12 @@ class SudokuBoard extends Component
     {
         foreach(range(1, 9) as $y) {
             foreach(range(1, 9) as $x) {
-                $singleCellProp = new SingleCellProps();
-                $singleCellProp->xCoordinate = $this->toLetter($x);
-                $singleCellProp->yCoordinate = $y;
-                $this->cells[] = $singleCellProp;
+                $cell = [
+                    'xCoordinate' => $this->toLetter($x),
+                    'yCoordinate' => $y,
+                ];
+
+                $this->cells[] = $cell;
             }
         }
     }

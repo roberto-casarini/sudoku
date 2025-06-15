@@ -5,11 +5,5 @@
         </div>
     </div>-->
     {{-- @livewire("single-cell", ["borders" => ["top"]]) --}}
-    <?php
-        /*$props = new App\Livewire\Wireables\SingleCellProps();
-        $props->xCoordinate = "B";
-        $props->yCoordinate = 1;*/
-    ?>
-    <!--<livewire:single-cell :props=$props />-->
     <livewire:sudoku-board />
 </x-layouts.app>

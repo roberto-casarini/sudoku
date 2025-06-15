@@ -10,13 +10,16 @@ class SingleCellProps implements Wireable
 
     public array $possibilities = [];
 
-    public $xCoordinate;
+    public $xCoordinate = '';
 
-    public $yCoordinate;
+    public $yCoordinate = '';
 
-    public $cellValue;
+    public $cellValue = '';
 
     public bool $preSetted = true;
+
+    public array $borders = [];
+
 
     public function toLivewire(): array
     {
@@ -27,6 +30,7 @@ class SingleCellProps implements Wireable
             'preSetted' => $this->preSetted,
             'xCoordinate' => $this->xCoordinate,
             'yCoordinate' => $this->yCoordinate,
+            'borders' => $this->borders,
         ];
     }
 
@@ -38,11 +42,12 @@ class SingleCellProps implements Wireable
         $preSetted = $value['preSetted'];
         $xCoordinate = $value['xCoordinate'];
         $yCoordinate = $value['yCoordinate'];
-        return new static($showPossibilities, $possibilities, $cellValue, $preSetted, $xCoordinate, $yCoordinate);
+        $borders = $value['borders'];
+        return new static($showPossibilities, $possibilities, $cellValue, $preSetted, $xCoordinate, $yCoordinate, $borders);
     }
 
-    public function getCoordinate()
+    /*public function getCoordinate()
     {
         return $this->xCoordinate . $this->yCoordinate;
-    }
+    }*/
 }
