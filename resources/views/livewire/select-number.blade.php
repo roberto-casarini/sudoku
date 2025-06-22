@@ -1,5 +1,5 @@
 <div x-data="selectNumberValues" class="border-1 border-gray-300 rounded-md w-max">
-    <div class="p-3 bg-white">
+    <form class="p-3 bg-white" @submit.prevent="sendValues">
         <div class="grid grid-cols-3 w-max">
             @foreach (range(1, 9) as $i)
             <div
@@ -22,10 +22,10 @@
                 Possibilities:
                 <input id="showProps" type="checkbox" class="ml-2" @change="setMultiple" />
             </label>
-            <button @click.prevent="sendValues" class="rounded-full bg-sky-500 text-white text-sm font-bold mt-1 border-1 border-sky-500 hover:bg-sky-700 hover:border-sky-700">Confirm</button>
-            <button wire:click="closeEdit" class="rounded-full text-sm font-bold mt-1 border-1 border-gray-400 hover:bg-gray-300">Cancel</button>
+            <button type="submit" class="rounded-full bg-sky-500 text-white text-sm font-bold mt-1 border-1 border-sky-500 hover:bg-sky-700 hover:border-sky-700">Confirm</button>
+            <button type="button" wire:click="closeEdit" class="rounded-full text-sm font-bold mt-1 border-1 border-gray-400 hover:bg-gray-300">Cancel</button>
         </div>
-    </div>
+    </form>
 </div>
 
 @script

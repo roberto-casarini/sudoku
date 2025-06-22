@@ -19,19 +19,14 @@ class SingleCell extends Component
 
     public $cellValue = '';
 
-    public $preSetting = true;
+    public $preSetting = false;
 
     public array $borders = [];
 
     public $edit = false;
 
-    protected $listeners = [
-        'closeEdit' => 'unsetEdit',
-        'sendValues' => 'setCellValue'
-    ];
-
     public function mount($cell)
-    {   
+    {
         $this->cell = $cell;
         $this->setBorders();
     }
@@ -56,6 +51,13 @@ class SingleCell extends Component
         $this->edit = true;
     }
 
+    #[Computed]
+    public function cellToText()
+    {
+        return $this->cell['xCoordinate'] . $this->cell['yCoordinate'];
+    }
+
+    #[On('edit.close')]
     public function unsetEdit($cell)
     {
         if ($cell == $this->cellToText()) {
@@ -63,30 +65,34 @@ class SingleCell extends Component
         }
     }
 
-    #[Computed]
-    public function cellToText() 
-    {
-        return $this->cell['xCoordinate'] . $this->cell['yCoordinate'];
-    }
-
     #[On('cell.setvalues')]
     public function setCellValues($cell, $values, $multiple)
     {
         if ($cell == $this->cellToText()) {
-            if (!$multiple) {
-                $this->showPossibilities = false;
-                $this->cellValue = $values[0];
-            } else {
-                $this->showPossibilities = true;
-                $this->possibilities = $values;
-            }
+            //if (count($values) > 0) {
+                if (!$multiple) {
+                    $this->showPossibilities = false;
+                    $this->cellValue = (count($values) > 0) ? $values[0] : '';
+                } else {
+                    $this->showPossibilities = true;
+                    $this->possibilities = $values;
+                }
+            //}
             $this->edit = false;
+        }
+    }
+
+    #[On('cells.setup')]
+    public function setSettingCell($value)
+    {
+        if ($this->cellValue == '') {
+            $this->preSetting = $value;
         }
     }
 
     private function setBorders(): void
     {
-        switch($this->cell['xCoordinate']) {
+        switch ($this->cell['xCoordinate']) {
             case 'A':
                 $this->borders[] = 'left';
                 break;
@@ -97,7 +103,7 @@ class SingleCell extends Component
                 break;
         }
 
-        switch($this->cell['yCoordinate']) {
+        switch ($this->cell['yCoordinate']) {
             case 1:
                 $this->borders[] = 'top';
                 break;
