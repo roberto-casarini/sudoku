@@ -1,14 +1,14 @@
 <div class="relative size-fit" x-on:value_selected="handleValueSelected" x-on:possibilities_selected="handlePossibilitiesSelected">
     @if($this->showXLabel)
-        <div class="w-14 text-center text-xl text-gray-700">{{ $cell['xCoordinate'] }}</div>
+        <div class="w-12 text-center text-xl text-gray-700">{{ $cell['xCoordinate'] }}</div>
     @endif
 
     @if($this->showYLabel)
-        <div class="absolute h-14 -left-4 my-4 text-xl text-gray-700">{{ $cell['yCoordinate'] }}</div>
+        <div class="absolute h-12 -left-5 my-3 text-xl text-gray-700">{{ $cell['yCoordinate'] }}</div>
     @endif
 
     <div @class([
-        'w-14 h-14 border-r-1 border-b-1 border-gray-300',
+        'w-12 h-12 border-r-1 border-b-1 border-gray-300',
         '!border-l-2 !border-l-gray-600' => $this->hasBorder('left'),
         '!border-t-2 !border-t-gray-600' => $this->hasBorder('top'),
         '!border-r-2 !border-r-gray-600' => $this->hasBorder('right'),
@@ -24,7 +24,7 @@
             </div>
         @else
             <div @class([
-                'text-5xl align-middle text-center',
+                'text-3xl text-center my-1',
                 'text-red-600' => !$preSetting
             ])>
                 {{ $cellValue }}

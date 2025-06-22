@@ -4,10 +4,11 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 
 class SingleCell extends Component
 {
-    public $showPossibilities = true;
+    public $showPossibilities = false;
 
     public array $possibilities = [];
 
@@ -68,10 +69,11 @@ class SingleCell extends Component
         return $this->cell['xCoordinate'] . $this->cell['yCoordinate'];
     }
 
-    public function setCellValue($cell, $values)
+    #[On('cell.setvalues')]
+    public function setCellValues($cell, $values, $multiple)
     {
         if ($cell == $this->cellToText()) {
-            if (count($values) == 1) {
+            if (!$multiple) {
                 $this->showPossibilities = false;
                 $this->cellValue = $values[0];
             } else {
