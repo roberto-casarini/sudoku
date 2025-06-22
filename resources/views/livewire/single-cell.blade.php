@@ -8,7 +8,7 @@
     @endif
 
     <div @class([
-        'w-12 h-12 border-r-1 border-b-1 border-gray-300',
+        'w-12 h-12 border-1 border-gray-300',
         '!border-l-2 !border-l-gray-600' => $this->hasBorder('left'),
         '!border-t-2 !border-t-gray-600' => $this->hasBorder('top'),
         '!border-r-2 !border-r-gray-600' => $this->hasBorder('right'),
@@ -19,7 +19,9 @@
                 @foreach (range(1, 9) as $i)
                     <div @class([
                         'invisible' => !$this->hasPossibility($i),
-                    ])>{{ $i }}</div>
+                    ])
+                    style="position: relative; top: -2px; left: -2px;"
+                    >{{ $i }}</div>
                 @endforeach
             </div>
         @else

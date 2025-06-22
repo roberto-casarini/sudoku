@@ -5,11 +5,11 @@
         </div>
     </div>-->
     {{-- @livewire("single-cell", ["borders" => ["top"]]) --}}
-    {{-- <livewire:sudoku-board /> --}}
-    @php
-        $cell = ['xCoordinate' => 'A', 'yCoordinate' => 1];
+    <livewire:sudoku-board />
+    {{-- @php
+        $cell = ['xCoordinate' => 'D', 'yCoordinate' => 4];
     @endphp 
-    <livewire:single-cell :cell="$cell" />
+    <livewire:single-cell :cell="$cell" /> --}}
     {{-- @php
         $cell = ['xCoordinate' => 'A', 'yCoordinate' => 1];
     @endphp
