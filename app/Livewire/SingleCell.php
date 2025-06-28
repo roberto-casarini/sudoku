@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Exception;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -28,6 +29,9 @@ class SingleCell extends Component
     public function mount($cell)
     {
         $this->cell = $cell;
+        if (!key_exists('xCoordinate', $cell) || !key_exists('yCoordinate', $cell)) {
+            throw new Exception('Invalid Cell');
+        }
         $this->setBorders();
     }
 
@@ -49,20 +53,45 @@ class SingleCell extends Component
     public function setEdit()
     {
         $this->edit = true;
+        $this->dispatch('setting-edit', 
+            cell: $this->cell
+        );
+    }
+
+    #[On('setting-edit')]
+    public function unsetEdit($cell)
+    {
+        if (($cell['xCoordinate'] != $this->cell['xCoordinate']) || ($cell['yCoordinate'] != $this->cell['yCoordinate'])) {
+            $this->edit = false;
+        }
+    }
+
+    #[Computed]
+    public function getXOffset()
+    {
+        return match($this->cell['xCoordinate']) {
+            'B' => 1,
+            'C' => 2,
+            'D' => 3,
+            'E' => 4,
+            'F' => 5,
+            'G' => 6,
+            'H' => 7,
+            'I' => 8,
+            default => 0,
+        };
+    }
+
+    #[Computed]
+    public function getYOffset()
+    {
+        return (int) $this->cell['yCoordinate'] - 1;
     }
 
     #[Computed]
     public function cellToText()
     {
         return $this->cell['xCoordinate'] . $this->cell['yCoordinate'];
-    }
-
-    #[On('edit.close')]
-    public function unsetEdit($cell)
-    {
-        if ($cell == $this->cellToText()) {
-            $this->edit = false;
-        }
     }
 
     #[On('cell.setvalues')]

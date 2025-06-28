@@ -18,11 +18,6 @@ class SelectNumber extends Component
         return view('livewire.select-number');
     }
 
-    public function closeEdit()
-    {
-        return $this->dispatch('edit.close', cell: $this->cell );
-    }
-
     public function sendValues($values, $isMultiple)
     {
         return $this->dispatch('cell.setvalues', cell: $this->cell, values: $values, multiple: $isMultiple);

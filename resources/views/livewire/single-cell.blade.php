@@ -8,14 +8,19 @@
     @endif
 
     <div @class([
-        'w-12 h-12',
+        'w-12 h-12 relative',
         '!border-l-2 !border-l-gray-600' => $this->hasBorder('left'),
         '!border-l-1 !border-l-gray-300' => !$this->hasBorder('left'),
         '!border-t-2 !border-t-gray-600' => $this->hasBorder('top'),
         '!border-t-1 !border-t-gray-300' => !$this->hasBorder('top'),
         '!border-r-2 !border-r-gray-600' => $this->hasBorder('right'),
+        '!border-r-1 !border-r-gray-300' => !$this->hasBorder('right'),
         '!border-b-2 !border-b-gray-600' => $this->hasBorder('bottom'),
-    ]) wire:click="setEdit" >
+        '!border-b-1 !border-b-gray-300' => !$this->hasBorder('bottom'),
+        'bg-yellow-300' => $this->edit,
+    ]) wire:click="setEdit"
+    style="top: -{{ $this->getYOffset() }}px; left: -{{ $this->getXOffset() }}px;"
+    >
         @if($showPossibilities)
             <div class="h-full w-full text-xs text-center grid grid-cols-3">
                 @foreach (range(1, 9) as $i)
