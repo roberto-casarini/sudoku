@@ -50,7 +50,7 @@
             return parseInt(this.hovering) === parseInt(value);
         },
         possibilityButtonText() {
-            return (this.possibility) ? 'Set Possibilities' : 'Set Value';
+            return (this.possibility) ? 'Set Value' : 'Set Possibilities';
         },
         isSelected(value) 
         {

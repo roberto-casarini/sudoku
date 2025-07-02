@@ -1,10 +1,20 @@
 <div class="relative size-fit" x-on:value_selected="handleValueSelected" x-on:possibilities_selected="handlePossibilitiesSelected">
     @if($this->showXLabel)
-        <div class="w-12 text-center text-xl text-gray-700">{{ $cell['xCoordinate'] }}</div>
+        <div 
+            class="absolute -top-7 w-12 text-center text-xl text-gray-700"
+            style="left: -{{ $this->getXOffset() }}px;"
+        >
+            {{ $cell['xCoordinate'] }}
+        </div>
     @endif
 
     @if($this->showYLabel)
-        <div class="absolute h-12 -left-5 my-3 text-xl text-gray-700">{{ $cell['yCoordinate'] }}</div>
+        <div 
+            class="absolute h-12 -left-5 my-3 text-xl text-gray-700"
+            style="top: -{{ $this->getYOffset() }}px;"
+        >
+            {{ $cell['yCoordinate'] }}
+        </div>
     @endif
 
     <div @class([
