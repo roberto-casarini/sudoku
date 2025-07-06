@@ -4,24 +4,19 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
+use App\Livewire\Traits\FlashMessageTrait;
 
 class SelectNumber extends Component
 {
-    public $cell = '';
+    use FlashMessageTrait;
 
     public function render()
     {
         return view('livewire.select-number');
     }
 
-    #[On('setting-edit')]
-    public function setCell($cell)
+    public function setCellValues($cell, $values, $showPossibilities)
     {
-        $this->cell = $cell;
-    }
-
-    public function sendValue($value, $isPossibility)
-    {
-        return $this->dispatch('cell.setvalue', cell: $this->cell, value: $value, possibility: $isPossibility);
+        $this->dispatch('set_cell_values', cell: $cell, values: $values, showPossibilities: $showPossibilities);
     }
 }

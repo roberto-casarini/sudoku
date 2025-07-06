@@ -10,7 +10,10 @@
     <livewire:select-number :cell="$cell" /> --}}
     {{-- <livewire:setup-board /> --}}
     <div class="container grid grid-cols-2 size-fit gap-4 w-full h-full">
-        <div><livewire:sudoku-board /></div>
+        <div>
+            <livewire:flash-message />
+            <livewire:sudoku-board />
+        </div>
         <div class="flex flex-col">
             <div class="w-max">
                 <livewire:select-number />

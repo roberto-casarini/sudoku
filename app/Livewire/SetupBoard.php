@@ -7,11 +7,11 @@ use Livewire\Attributes\Computed;
 
 class SetupBoard extends Component
 {
-    const BEGINNING_STATE = 0;
-    const SETUP_STATE = 1;
-    const GAMING_STATE = 2;
-    const PAUSED_STATE = 3;
-    const END_STATE = 4;
+    const BEGINNING_STATE = 'beginning';
+    const SETUP_STATE = 'setup';
+    const PLAYING_STATE = 'playing';
+    const PAUSED_STATE = 'paused';
+    const END_STATE = 'end';
 
     public $startStopText = "Start";
 
@@ -24,13 +24,13 @@ class SetupBoard extends Component
 
     public function play()
     {
-        $this->setCurrentState(self::GAMING_STATE);
+        $this->setCurrentState(self::PLAYING_STATE);
     }
 
     public function pause()
     {
         if ($this->currentState == self::PAUSED_STATE) { 
-            $this->setCurrentState(self::GAMING_STATE);
+            $this->setCurrentState(self::PLAYING_STATE);
         } else {
             $this->setCurrentState(self::PAUSED_STATE);
         }
@@ -38,7 +38,7 @@ class SetupBoard extends Component
 
     public function restart()
     {
-        $this->setCurrentState(self::GAMING_STATE);
+        $this->setCurrentState(self::PLAYING_STATE);
     }
 
     public function stop()
@@ -54,7 +54,7 @@ class SetupBoard extends Component
     private function setCurrentState($state)
     {
         $this->currentState = $state;
-        $this->dispatch('set-gaming-state', state: $state);
+        $this->dispatch('gaming_state', state: $state);
     }
 
     public function render()
@@ -80,7 +80,7 @@ class SetupBoard extends Component
         
     public function isPauseDisabled() 
     {
-        return !in_array($this->currentState, [self::GAMING_STATE, self::PAUSED_STATE]);
+        return !in_array($this->currentState, [self::PLAYING_STATE, self::PAUSED_STATE]);
     }
         
     public function isResetDisabled() 
