@@ -54,7 +54,7 @@ class SetupBoard extends Component
     private function setCurrentState($state)
     {
         $this->currentState = $state;
-        $this->dispatch('gaming_state', state: $state);
+        $this->dispatch('set_gaming_state', state: $state);
     }
 
     public function render()

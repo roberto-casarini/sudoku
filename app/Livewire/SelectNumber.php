@@ -10,13 +10,101 @@ class SelectNumber extends Component
 {
     use FlashMessageTrait;
 
+    public $cell = '';
+
+    public $disabled = true;
+
+    public $disabled_possibilities = true;
+
+    public $possibilities = false;
+
+    public $hovering = '';
+
+    public $selectedValues = [];
+
+    public function setCellValue($value) 
+    {
+        if ($this->cell == '') {
+            $this->sendMessage('warning', 'Attenzione!', 'Devi selezionare una cella per inserire un numero!');
+        } else {
+            if (!$this->isSelected($value)) {
+                if (!$this->possibilities) {
+                    $this->selectedValues = [];
+                }
+                $this->selectedValues[] = $value;
+            } else if ($this->possibilities) { // Toggle functionality only for multiple values selection
+                $this->selectedValues = array_filter($this->selectedValues, function($itemValue) use($value) {
+                    return $itemValue != $value;
+                });
+            }
+            $this->dispatchCellValues($this->cell, $this->selectedValues, $this->possibilities);
+        }
+    }
+
+    public function dispatchCellValues($cell, $values, $showPossibilities)
+    {
+        $this->dispatch('set_cell_values', cell: $cell, values: $values, showPossibilities: $showPossibilities);
+    }
+
+    public function setPossibilities() 
+    {
+        $this->possibilities = !$this->possibilities;
+        $this->selectedValues = [];
+    }
+
+    #[On('cell_selected')]
+    public function cellSelected($cell) 
+    {
+        $this->cell = $cell;
+        $this->resetSelect();
+    }
+
+    private function resetSelect() 
+    {
+        $this->possibilities = false;
+        $this->selectedValues = [];
+        $this->hovering = '';
+    }
+
+    #[On('set_gaming_state')]
+    public function setGamingState($state)
+    {
+        switch($state) {
+            case 'setup':
+                $this->disabled = false;
+                $this->disabled_possibilities = true;
+                break;
+            case 'playing':
+                $this->disabled = false;
+                $this->disabled_possibilities = false;
+                $this->cell = '';
+                $this->resetSelect();
+                break;
+        }
+    }
+
+    public function isHovering($value) 
+    {
+        return (int) $this->hovering == (int) $value;
+    }
+
+    public function setHovering($value = '')
+    {
+        $this->hovering = $value;
+    }
+
+    public function possibilityButtonText() 
+    {
+        return $this->possibilities ? 'Set Value' : 'Set Possibilities';
+    }
+
+    public function isSelected($value) 
+    {
+        return in_array($value, $this->selectedValues);
+    }
+
     public function render()
     {
         return view('livewire.select-number');
-    }
-
-    public function setCellValues($cell, $values, $showPossibilities)
-    {
-        $this->dispatch('set_cell_values', cell: $cell, values: $values, showPossibilities: $showPossibilities);
     }
 }
