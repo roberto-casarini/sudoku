@@ -16,7 +16,7 @@ class SelectNumber extends Component
 
     public $disabled_possibilities = true;
 
-    public $possibilities = false;
+    public $showPossibilities = false;
 
     public $hovering = '';
 
@@ -28,16 +28,18 @@ class SelectNumber extends Component
             $this->sendMessage('warning', 'Attenzione!', 'Devi selezionare una cella per inserire un numero!');
         } else {
             if (!$this->isSelected($value)) {
-                if (!$this->possibilities) {
+                if (!$this->showPossibilities) {
                     $this->selectedValues = [];
                 }
                 $this->selectedValues[] = $value;
-            } else if ($this->possibilities) { // Toggle functionality only for multiple values selection
+            } else if (!$this->showPossibilities && $this->isSelected($value)) {
+                $this->selectedValues = [];
+            } else if ($this->showPossibilities) { // Toggle functionality only for multiple values selection
                 $this->selectedValues = array_filter($this->selectedValues, function($itemValue) use($value) {
                     return $itemValue != $value;
                 });
             }
-            $this->dispatchCellValues($this->cell, $this->selectedValues, $this->possibilities);
+            $this->dispatchCellValues($this->cell, $this->selectedValues, $this->showPossibilities);
         }
     }
 
@@ -48,20 +50,27 @@ class SelectNumber extends Component
 
     public function setPossibilities() 
     {
-        $this->possibilities = !$this->possibilities;
+        $this->showPossibilities = !$this->showPossibilities;
         $this->selectedValues = [];
     }
 
     #[On('cell_selected')]
-    public function cellSelected($cell) 
+    public function cellSelected($cell, $cellValue, $possibilities) 
     {
         $this->cell = $cell;
-        $this->resetSelect();
+        if (count($possibilities) > 0) {
+            $this->selectedValues = $possibilities;
+            $this->showPossibilities = true;
+        } else {
+            $this->selectedValues = [$cellValue];
+            $this->showPossibilities = false;
+        }
+        //$this->resetSelect();
     }
 
     private function resetSelect() 
     {
-        $this->possibilities = false;
+        $this->showPossibilities = false;
         $this->selectedValues = [];
         $this->hovering = '';
     }
@@ -95,7 +104,7 @@ class SelectNumber extends Component
 
     public function possibilityButtonText() 
     {
-        return $this->possibilities ? 'Set Value' : 'Set Possibilities';
+        return $this->showPossibilities ? 'Set Value' : 'Set Possibilities';
     }
 
     public function isSelected($value) 

@@ -23,8 +23,6 @@ class SingleCell extends Component
 
     public $settingMode = false;
 
-    public $showPossibilities = false;
-
     public function mount($cell)
     {
         if (empty($cell)) {
@@ -35,11 +33,13 @@ class SingleCell extends Component
         $this->setBorders();
     }
 
+    #[Computed]
     public function getXCoord() 
     {
         return strlen($this->cell) == 2 ? substr($this->cell, 0, 1) : '';
     }
         
+    #[Computed]
     public function getYCoord() 
     {
         return strlen($this->cell) == 2 ? substr($this->cell, 1, 1) : '';
@@ -50,16 +50,19 @@ class SingleCell extends Component
         return in_array($value, $this->borders);
     }
 
+    #[Computed]
     public function showXLabel() 
     {
         return $this->getYCoord() == '1';
     }
 
+    #[Computed]
     public function showYLabel() 
     {
         return $this->getXCoord() == 'A';
     }
 
+    #[Computed]
     public function getXOffset() 
     {
         $res = 0;
@@ -95,14 +98,22 @@ class SingleCell extends Component
         return "left: -" . $res . "px;";
     }
 
+    #[Computed]
     public function getYOffset() 
     {
         return "top: -" . ($this->getYCoord()) - 1 . "px;";
     }
 
+    #[Computed]
     public function getOffset() 
     {
         return $this->getYOffset() . ' ' . $this->getXOffset();
+    }
+
+    #[Computed]
+    public function showPossibilities()
+    {
+        return count($this->possibilities) > 0;
     }
 
     private function setBorders() 
@@ -133,7 +144,7 @@ class SingleCell extends Component
     public function selectCell() 
     {
         if (!$this->disabled) {
-            $this->dispatch('cell_selected', cell: $this->cell);
+            $this->dispatch('cell_selected', cell: $this->cell, cellValue: $this->cellValue, possibilities: $this->possibilities);
             $this->edit = true;
         }
     }
@@ -180,12 +191,13 @@ class SingleCell extends Component
     {
         if ($cell == $this->cellToText()) {
             if (!$showPossibilities) {
-                $this->showPossibilities = false;
-                $this->cellValue = (count($values) > 0) ? $values[0] : '';
+                $value = (count($values) > 0) ? $values[0] : '';
+                $this->cellValue = ($this->cellValue != $value) ? $value : ''; // Set cell value or reset it
             } else {
-                $this->showPossibilities = true;
                 $this->possibilities = $values;
             }
+
+            // Save to db
         }
     }
 

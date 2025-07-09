@@ -6,8 +6,8 @@
                 wire:click="setPossibilities"
                 @class([
                     'w-full font-semibold text-white px-2 rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed',
-                    'bg-red-600' => $this->possibilities,
-                    'bg-green-600' => !$this->possibilities
+                    'bg-red-600' => $this->showPossibilities,
+                    'bg-green-600' => !$this->showPossibilities
                 ])
                 @if ($this->disabled_possibilities) disabled="disabled" @endif>
                 {{ $this->possibilityButtonText() }}

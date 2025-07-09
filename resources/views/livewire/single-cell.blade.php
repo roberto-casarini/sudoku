@@ -34,7 +34,7 @@
     wire:click="selectCell"
     @style="getOffset();"
     >
-        @if($showPossibilities)
+        @if($this->showPossibilities())
             <div class="h-full w-full text-xs text-center grid grid-cols-3">
                 @foreach (range(1, 9) as $i)
                     <div @class([
