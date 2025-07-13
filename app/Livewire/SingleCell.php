@@ -6,6 +6,7 @@ use Exception;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Log;
 
 class SingleCell extends Component
 {
@@ -191,9 +192,11 @@ class SingleCell extends Component
     {
         if ($cell == $this->cellToText()) {
             if (!$showPossibilities) {
+                $this->possibilities = [];
                 $value = (count($values) > 0) ? $values[0] : '';
                 $this->cellValue = ($this->cellValue != $value) ? $value : ''; // Set cell value or reset it
             } else {
+                $this->cellValue = '';
                 $this->possibilities = $values;
             }
 

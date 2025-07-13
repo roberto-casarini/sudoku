@@ -16,13 +16,10 @@
         <div class="grid grid-cols-3 gap-2 w-max">
             @foreach (range(1, 9) as $i)
             <div
-                wire:mouseover="setHovering({{$i}})"
-                wire:mouseout="setHovering()"
                 wire:click="setCellValue({{$i}})"
                 @class([ 
                     'text-center h-12 w-12 text-3xl rounded-md border-1 transition duration-500 ease-in-out',
-                    'bg-yellow-300 text-black cursor-pointer border-blue-300' => $this->isHovering($i) && !$this->disabled,
-                    'bg-white text-black cursor-pointer border-blue-300' => !$this->isHovering($i) && !$this->isSelected($i) && !$this->disabled,
+                    'bg-white text-black cursor-pointer border-blue-300' => !$this->isSelected($i) && !$this->disabled,
                     'bg-green-700 text-white cursor-pointer border-blue-300' => $this->isSelected($i) && !$this->disabled,      
                     'cursor-not-allowed text-gray-500 border-gray-500 bg-gray-200' => $this->disabled,       
                 ])

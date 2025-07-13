@@ -18,7 +18,7 @@ class SelectNumber extends Component
 
     public $showPossibilities = false;
 
-    public $hovering = '';
+    //public $hovering = '';
 
     public $selectedValues = [];
 
@@ -27,31 +27,42 @@ class SelectNumber extends Component
         if ($this->cell == '') {
             $this->sendMessage('warning', 'Attenzione!', 'Devi selezionare una cella per inserire un numero!');
         } else {
-            if (!$this->isSelected($value)) {
-                if (!$this->showPossibilities) {
-                    $this->selectedValues = [];
-                }
-                $this->selectedValues[] = $value;
-            } else if (!$this->showPossibilities && $this->isSelected($value)) {
-                $this->selectedValues = [];
-            } else if ($this->showPossibilities) { // Toggle functionality only for multiple values selection
-                $this->selectedValues = array_filter($this->selectedValues, function($itemValue) use($value) {
-                    return $itemValue != $value;
-                });
-            }
-            $this->dispatchCellValues($this->cell, $this->selectedValues, $this->showPossibilities);
-        }
-    }
 
-    public function dispatchCellValues($cell, $values, $showPossibilities)
-    {
-        $this->dispatch('set_cell_values', cell: $cell, values: $values, showPossibilities: $showPossibilities);
+            // Se sono sul valore singolo 
+            // resetto i valori selezionati
+            // e imposto il singolo valore
+            
+            // Se sono sul valore singolo
+            // e il valore selezionato è uguale a quello già presente resetto il valore
+
+            // Se sono sul valore multiplo
+            // inserisco il valore o lo resetto se già presente
+
+
+            if (!$this->showPossibilities) {
+                $this->selectedValues = [];
+                if (!$this->isSelected($value)) {
+                    $this->selectedValues[] = $value;
+                }
+            } else { 
+                if (!$this->isSelected($value)) {
+                    $this->selectedValues[] = $value;
+                } else {
+                    $this->selectedValues = array_filter($this->selectedValues, function($itemValue) use($value) {
+                        return $itemValue != $value;
+                    });
+                }
+            }
+            $this->dispatch('set_cell_values', cell: $this->cell, values: $this->selectedValues, showPossibilities: $this->showPossibilities);
+        }
     }
 
     public function setPossibilities() 
     {
         $this->showPossibilities = !$this->showPossibilities;
-        $this->selectedValues = [];
+        if ($this->cell != '') {
+            $this->selectedValues = [];
+        }
     }
 
     #[On('cell_selected')]
@@ -65,14 +76,13 @@ class SelectNumber extends Component
             $this->selectedValues = [$cellValue];
             $this->showPossibilities = false;
         }
-        //$this->resetSelect();
     }
 
     private function resetSelect() 
     {
         $this->showPossibilities = false;
         $this->selectedValues = [];
-        $this->hovering = '';
+        //$this->hovering = '';
     }
 
     #[On('set_gaming_state')]
@@ -92,7 +102,7 @@ class SelectNumber extends Component
         }
     }
 
-    public function isHovering($value) 
+    /*public function isHovering($value) 
     {
         return (int) $this->hovering == (int) $value;
     }
@@ -100,7 +110,7 @@ class SelectNumber extends Component
     public function setHovering($value = '')
     {
         $this->hovering = $value;
-    }
+    }*/
 
     public function possibilityButtonText() 
     {
