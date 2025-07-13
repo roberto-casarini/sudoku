@@ -18,8 +18,6 @@ class SelectNumber extends Component
 
     public $showPossibilities = false;
 
-    //public $hovering = '';
-
     public $selectedValues = [];
 
     public function setCellValue($value) 
@@ -27,18 +25,6 @@ class SelectNumber extends Component
         if ($this->cell == '') {
             $this->sendMessage('warning', 'Attenzione!', 'Devi selezionare una cella per inserire un numero!');
         } else {
-
-            // Se sono sul valore singolo 
-            // resetto i valori selezionati
-            // e imposto il singolo valore
-            
-            // Se sono sul valore singolo
-            // e il valore selezionato è uguale a quello già presente resetto il valore
-
-            // Se sono sul valore multiplo
-            // inserisco il valore o lo resetto se già presente
-
-
             if (!$this->showPossibilities) {
                 $this->selectedValues = [];
                 if (!$this->isSelected($value)) {
@@ -65,53 +51,6 @@ class SelectNumber extends Component
         }
     }
 
-    #[On('cell_selected')]
-    public function cellSelected($cell, $cellValue, $possibilities) 
-    {
-        $this->cell = $cell;
-        if (count($possibilities) > 0) {
-            $this->selectedValues = $possibilities;
-            $this->showPossibilities = true;
-        } else {
-            $this->selectedValues = [$cellValue];
-            $this->showPossibilities = false;
-        }
-    }
-
-    private function resetSelect() 
-    {
-        $this->showPossibilities = false;
-        $this->selectedValues = [];
-        //$this->hovering = '';
-    }
-
-    #[On('set_gaming_state')]
-    public function setGamingState($state)
-    {
-        switch($state) {
-            case 'setup':
-                $this->disabled = false;
-                $this->disabled_possibilities = true;
-                break;
-            case 'playing':
-                $this->disabled = false;
-                $this->disabled_possibilities = false;
-                $this->cell = '';
-                $this->resetSelect();
-                break;
-        }
-    }
-
-    /*public function isHovering($value) 
-    {
-        return (int) $this->hovering == (int) $value;
-    }
-
-    public function setHovering($value = '')
-    {
-        $this->hovering = $value;
-    }*/
-
     public function possibilityButtonText() 
     {
         return $this->showPossibilities ? 'Set Value' : 'Set Possibilities';
@@ -125,5 +64,52 @@ class SelectNumber extends Component
     public function render()
     {
         return view('livewire.select-number');
+    }
+
+    #[On('cell_selected')]
+    public function cellSelected($cell, $cellValue, $possibilities) 
+    {
+        $this->cell = $cell;
+        if (count($possibilities) > 0) {
+            $this->selectedValues = $possibilities;
+            $this->showPossibilities = true;
+        } else {
+            $this->selectedValues = [$cellValue];
+            $this->showPossibilities = false;
+        }
+    }
+
+    #[On('set_gaming_state')]
+    public function setGamingState($state)
+    {
+        switch($state) {
+            case 'beginning':
+                $this->disabled = true;
+                $this->disabled_possibilities = true;
+                $this->showPossibilities = false;
+                $this->selectedValues = [];
+                $this->cell = '';
+                break;
+            case 'setup':
+                $this->disabled = false;
+                $this->disabled_possibilities = true;
+                break;
+            case 'playing':
+                $this->disabled = false;
+                $this->disabled_possibilities = false;
+                $this->cell = '';
+                $this->resetSelect();
+                break;
+            case 'end':
+                $this->disabled = true;
+                $this->disabled_possibilities = true;
+                break;    
+        }
+    }
+
+    private function resetSelect() 
+    {
+        $this->showPossibilities = false;
+        $this->selectedValues = [];
     }
 }

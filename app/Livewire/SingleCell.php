@@ -16,7 +16,7 @@ class SingleCell extends Component
 
     public $cellValue = '';
 
-    public $borders = [];
+    public array $borders = [];
 
     public $edit = false;
 
@@ -34,6 +34,36 @@ class SingleCell extends Component
         $this->setBorders();
     }
 
+    public function hasBorder($value) 
+    {
+        return in_array($value, $this->borders);
+    }
+
+    public function selectCell() 
+    {
+        if (!$this->disabled) {
+            $this->dispatch('cell_selected', cell: $this->cell, cellValue: $this->cellValue, possibilities: $this->possibilities);
+            $this->edit = true;
+        }
+    }
+
+    public function hasPossibility($value): bool
+    {
+        return in_array((int) $value, $this->possibilities);
+    }
+
+    public function isPopulated($cell) {
+        if ($cell == $this->cell) {
+            return (($this->cellValue != '') || (count($this->possibilities) > 0)); 
+        }
+        return true;
+    }
+
+    public function render()
+    {
+        return view('livewire.single-cell');
+    }
+
     #[Computed]
     public function getXCoord() 
     {
@@ -44,11 +74,6 @@ class SingleCell extends Component
     public function getYCoord() 
     {
         return strlen($this->cell) == 2 ? substr($this->cell, 1, 1) : '';
-    }
-
-    public function hasBorder($value) 
-    {
-        return in_array($value, $this->borders);
     }
 
     #[Computed]
@@ -117,6 +142,64 @@ class SingleCell extends Component
         return count($this->possibilities) > 0;
     }
 
+    #[Computed]
+    public function cellToText()
+    {
+        return $this->cell;
+    }
+
+    #[On('cell_selected')]
+    public function unselectCell($cell) 
+    {
+        if ($cell != $this->cell) {
+            $this->edit = false;
+        }
+    }
+
+    #[On('set_gaming_state')]
+    public function setGamingState($state)
+    {
+        switch($state) {
+            case 'beginning':
+                $this->possibilities = [];
+                $this->cellValue = '';
+                $this->edit = false;
+                $this->disabled = true;
+                $this->settingMode = false;
+                break;
+            case 'setup':
+                $this->disabled = false;
+                $this->settingMode = true;
+                break;
+            case 'playing':
+                $this->disabled = false;
+                if ($this->cellValue == '') {
+                    $this->settingMode = false;
+                }
+                $this->edit = false;
+                break;
+            case 'end':
+                $this->edit = false;
+                $this->disabled = true;
+                break;
+        }
+    }
+
+    #[On('set_cell_values')]
+    public function setCellValues($cell, $values, $showPossibilities)
+    {
+        if ($cell == $this->cellToText()) {
+            if (!$showPossibilities) {
+                $this->possibilities = [];
+                $value = (count($values) > 0) ? $values[0] : '';
+                $this->cellValue = ($this->cellValue != $value) ? $value : ''; 
+            } else {
+                $this->cellValue = '';
+                $this->possibilities = $values;
+            }
+        }
+    }
+
     private function setBorders() 
     {
         switch ($this->getXCoord()) {
@@ -140,79 +223,5 @@ class SingleCell extends Component
                 $this->borders[] = 'bottom';
                 break;
         }
-    }
-
-    public function selectCell() 
-    {
-        if (!$this->disabled) {
-            $this->dispatch('cell_selected', cell: $this->cell, cellValue: $this->cellValue, possibilities: $this->possibilities);
-            $this->edit = true;
-        }
-    }
-
-    #[On('cell_selected')]
-    public function unselectCell($cell) 
-    {
-        if ($cell != $this->cell) {
-            $this->edit = false;
-        }
-    }
-
-    #[On('set_gaming_state')]
-    public function setGamingState($state)
-    {
-        switch($state) {
-            case 'setup':
-                $this->disabled = false;
-                $this->settingMode = true;
-                break;
-            case 'playing':
-                $this->disabled = false;
-                if ($this->cellValue == '') {
-                    $this->settingMode = false;
-                }
-                $this->edit = false;
-                break;
-        }
-    }
-
-    public function hasPossibility($value): bool
-    {
-        return in_array((int) $value, $this->possibilities);
-    }
-
-    #[Computed]
-    public function cellToText()
-    {
-        return $this->cell;
-    }
-
-    #[On('set_cell_values')]
-    public function setCellValues($cell, $values, $showPossibilities)
-    {
-        if ($cell == $this->cellToText()) {
-            if (!$showPossibilities) {
-                $this->possibilities = [];
-                $value = (count($values) > 0) ? $values[0] : '';
-                $this->cellValue = ($this->cellValue != $value) ? $value : ''; // Set cell value or reset it
-            } else {
-                $this->cellValue = '';
-                $this->possibilities = $values;
-            }
-
-            // Save to db
-        }
-    }
-
-    public function isPopulated($cell) {
-        if ($cell == $this->cell) {
-            return (($this->cellValue != '') || (count($this->possibilities) > 0)); 
-        }
-        return true;
-    }
-
-    public function render()
-    {
-        return view('livewire.single-cell');
     }
 }
