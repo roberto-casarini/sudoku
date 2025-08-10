@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Livewire\Wireables\SingleCellProps;
 
 class SudokuBoard extends Component
 {

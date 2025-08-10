@@ -72,10 +72,14 @@ class SelectNumber extends Component
         $this->cell = $cell;
         if (count($possibilities) > 0) {
             $this->selectedValues = $possibilities;
-            $this->showPossibilities = true;
+            if (count($this->selectedValues) > 0) { 
+                $this->showPossibilities = true;
+            }
         } else {
-            $this->selectedValues = [$cellValue];
-            $this->showPossibilities = false;
+            $this->selectedValues = (is_numeric($cellValue)) ? [$cellValue] : [];
+            if (count($this->selectedValues) > 0) { 
+                $this->showPossibilities = false;
+            }
         }
     }
 
