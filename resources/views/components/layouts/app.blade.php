@@ -30,8 +30,7 @@
             </div>
         </div>
     </header>
-    <main class="container mx-auto px-4 py-8"> <!-- Centratura automatica e padding -->
-        <h1 class="text-3xl font-bold mb-6">Titolo della Pagina</h1>
+    <main class="container mx-auto py-1"> <!-- Centratura automatica e padding -->
         <div class="bg-white rounded-lg p-6"> <!-- Card esempio -->
             <div>
                 {{ $slot }}
