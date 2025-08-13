@@ -1,0 +1,137 @@
+<div x-data="singleCell({{ json_encode($cell) }})" class="relative size-fit">
+    <template x-if="showXLabel()">
+        <div 
+            class="absolute -top-7 w-12 text-center text-xl text-gray-700"
+            :style="getXOffset"
+            x-text="thecell.xcoord"
+        >
+        </div>
+    </template>
+
+    <template x-if="showYLabel()">
+        <div 
+            class="absolute h-12 -left-5 my-3 text-xl text-gray-700"
+            :style="getYOffset"
+            x-text="thecell.ycoord"
+        >
+        </div>
+    </template>
+
+    <div
+        class="w-12 h-12 relative" 
+        :class="{
+            '!border-l-2 !border-l-gray-600': hasBorder('left'),
+            '!border-l-1 !border-l-gray-300': !hasBorder('left'),
+            '!border-t-2 !border-t-gray-600': hasBorder('top'),
+            '!border-t-1 !border-t-gray-300': !hasBorder('top'),
+            '!border-r-2 !border-r-gray-600': hasBorder('right'),
+            '!border-r-1 !border-r-gray-300': !hasBorder('right'),
+            '!border-b-2 !border-b-gray-600': hasBorder('bottom'),
+            '!border-b-1 !border-b-gray-300': !hasBorder('bottom'),
+            'bg-gray-200 cursor-not-allowed': disabled,
+            'cursor-pointer': !disabled,
+            'bg-yellow-300': edit
+        }"
+        :style="getOffset"
+    >
+
+        <div
+            class="w-12 h-12 relative" 
+        >
+            <div
+                class="text-4xl text-center my-1"
+                x-text="thecell.value"
+            >
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('singleCell', (cell) => {
+            console.log(cell);
+            return {
+                thecell: [],
+                borders: [],
+                disabled: false,
+                edit: false,
+                init() {
+                    this.thecell = cell;
+                    this.setBorders();
+                },
+                showXLabel() {
+                    return this.thecell.ycoord === 1;
+                },
+                showYLabel() {
+                    return this.thecell.xcoord === 'A';
+                },
+                getXOffset() {
+                    let res = 0;
+                    switch(this.thecell.xcoord) {
+                        case 'B':
+                            res = 1;
+                            break;
+                        case 'C':
+                            res = 2;
+                            break;
+                        case 'D': 
+                            res = 3;
+                            break;
+                        case 'E': 
+                            res = 4;
+                            break;
+                        case 'F': 
+                            res = 5;
+                            break;
+                        case 'G': 
+                            res = 6;
+                            break;
+                        case 'H': 
+                            res = 7;
+                            break;
+                        case 'I': 
+                            res = 8;
+                            break;
+                        default: 
+                            res = 0;
+                            break;
+                    };
+                    return "left: -" + res + "px;";
+                },
+                getYOffset() {
+                    return "top: -" + this.thecell.ycoord - 1 + "px;";
+                },
+                getOffset() {
+                    return this.getYOffset() + ' ' + this.getXOffset();
+                },
+                hasBorder(value) {
+                    return this.borders.includes(value);
+                },
+                setBorders() { 
+                    switch (this.thecell.xcoord) {
+                        case 'A':
+                            this.borders.push('left');
+                            break;
+                        case 'C':
+                        case 'F':
+                        case 'I':
+                            this.borders.push('right');
+                            break;
+                    }
+
+                    switch (this.thecell.ycoord) {
+                        case '1':
+                            this.borders.push('top');
+                            break;
+                        case '3':
+                        case '6':
+                        case '9':
+                            this.borders.push('bottom');
+                            break;
+                    }
+                }
+            }
+        });
+    });
+</script>
