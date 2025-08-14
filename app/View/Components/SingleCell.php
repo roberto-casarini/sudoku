@@ -9,13 +9,15 @@ use Illuminate\View\Component;
 class SingleCell extends Component
 {
     public $cell = [];
+    public $disabled = true;
 
     /**
      * Create a new component instance.
      */
-    public function __construct($cell)
+    public function __construct($cell, $disabled)
     {
         $this->cell = $cell;
+        $this->disabled = $disabled;
     }
 
     /**
@@ -23,6 +25,6 @@ class SingleCell extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.single-cell', ['cell' => $this->cell]);
+        return view('components.single-cell');
     }
 }

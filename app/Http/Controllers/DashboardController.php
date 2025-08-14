@@ -14,6 +14,7 @@ class DashboardController extends Controller
             Session::forget('game');
         }
         $this->initSession();
+
         return view('dashboard');
     }
 
@@ -36,6 +37,7 @@ class DashboardController extends Controller
             'date' => $now->format('Y-m-d'),
             'time' => $now->format('H:i:s'),
             'cells' => $cells,
+            'disabled' => true,
         ];
 
         Session::put('game', $game);

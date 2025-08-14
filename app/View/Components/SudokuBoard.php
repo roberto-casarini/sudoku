@@ -10,13 +10,16 @@ use Illuminate\Support\Facades\Session;
 class SudokuBoard extends Component
 {
     public $cells = [];
+    public $disabled = true;
 
     /**
      * Create a new component instance.
      */
     public function __construct()
     {
-        $this->cells = Session::get('game')['cells'];
+        $game = Session::get('game');
+        $this->cells = $game['cells'];
+        $this->disabled = $game['disabled'];
     }
 
     /**
