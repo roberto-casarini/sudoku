@@ -6,8 +6,8 @@
         </div>
         <div class="flex flex-col">
             <div class="w-max">
-                <livewire:select-number />
-                <livewire:setup-board />
+                <x-select-number />
+                <x-setup-board />
             </div>
         </div>
     </div>

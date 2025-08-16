@@ -1,54 +1,57 @@
-<div 
-    x-data="selectNumber" 
-    class="grid grid-cols-3 w-max"             
-    @click.outside="sendValues"
->
-    @foreach (range(1, 9) as $i)
-        <div 
-            x-data="{ hovering: false }"
-            :class="{
-                'bg-yellow-300 text-black': hovering,
-                'bg-white text-black': !hovering && !isSelected({{ $i }}),
-                'bg-green-700 text-white': isSelected({{ $i }})    
-            }"
-            class="text-center align-middle h-8 w-8 cursor-pointer text-2xl border-1"
-            @mouseover="hovering = true"
-            @mouseout="hovering = false"
-            @click="selectValue({{ $i }})"
-            @dblclick="sendValues"
-     >{{ $i }}</div>
-    @endforeach
+<div x-data="selectNumber" class="w-max mt-6">
+    <div class="p-3 bg-white">
+        <div class="mb-4 flex flex-col">
+            <button
+                type="button"
+                class="w-full font-semibold text-white px-2 rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+                :class="{
+                    'bg-red-600': showPossibilities,
+                    'bg-green-600': !showPossibilities
+                }"
+                :disabled="disabled"
+                x-text="possibilityButtonText"
+            >
+            </button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 w-max">
+            <template x-for="i in 9">
+            <div
+                class="text-center h-12 w-12 text-3xl rounded-md border-1 transition duration-500 ease-in-out"
+                :class="{ 
+                    'bg-white text-black cursor-pointer border-blue-300': !isSelected(i) && !disabled,
+                    'bg-green-700 text-white cursor-pointer border-blue-300': isSelected(i) && !disabled,      
+                    'cursor-not-allowed text-gray-500 border-gray-500 bg-gray-200': disabled,       
+                }"
+                >
+                <div
+                    class="mt-1"
+                    x-text="i"    
+                >
+                </div>
+            </div>
+            </template>
+        </div>
+    </div>
 </div>
 
-@script
 <script>
-    Alpine.data('selectNumber', () => ({
-        isMultiple: @bool($multiple),
-        cell: @json($cell),
-        selectedValues: [],
-        isSelected(value) {
-            return this.selectedValues.includes(value);
-        },
-        selectValue(value) {
-            if (!this.isSelected(value)) {
-                if (!this.isMultiple) {
-                    this.selectedValues = [];
-                }
-                this.selectedValues.push(value);
-            } else if (this.isMultiple) { // Toggle functionality only for multiple values selection
-                this.selectedValues = this.selectedValues.filter((itemValue) => {
-                    return itemValue !== value;
-                });
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('selectNumber', () => ({
+            cell: '',
+            disabled: true,
+            disabled_possibilities: true,
+            showPossibilities: false,
+            selectedValues: [],
+            isSelected(value) {
+                return this.selectedValues.includes(value);
+            },
+            possibilityButtonText() {
+                return this.showPossibilities ? 'Set Value' : 'Set Possibilities';
+            },
+            resetSelect() {
+                this.showPossibilities = false;
+                this.selectedValues = [];
             }
-        },
-        sendValues() {
-            if (this.isMultiple) {
-                $dispatch('possibilities_selected', { cell: this.cell, values: this.selectedValues.join() })
-            } else {
-                let value = this.selectedValues[0];
-                $dispatch('value_selected', { cell: this.cell, value: value })
-            }
-        }
-    }));
+        }));
+    });
 </script>
-@endscript

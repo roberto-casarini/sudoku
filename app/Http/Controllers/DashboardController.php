@@ -34,6 +34,7 @@ class DashboardController extends Controller
         }        
         
         $game = [
+            'state' => 'beginning',
             'date' => $now->format('Y-m-d'),
             'time' => $now->format('H:i:s'),
             'cells' => $cells,
