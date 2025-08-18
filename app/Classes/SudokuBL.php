@@ -47,10 +47,10 @@ class SudokuBL
         $cell = $board->findCell($xCoordinate, $yCoordinate);
         if (is_object($cell)) {
             $this->data->logs[] = [
-                'xCoordinate' => $cell->getXCoordinate(),
-                'yCoordinate' => $cell->getYCoordinate(),
-                'value' => $cell->getValue(),
-                'setup' => $cell->getSetup(),
+                'xCoordinate' => $cell->xCoordinate,
+                'yCoordinate' => $cell->yCoordinate,
+                'value' => $cell->value,
+                'setup' => $cell->setup,
             ];
         }
         $board->setCellValue($xCoordinate, $yCoordinate, $value, $setup);

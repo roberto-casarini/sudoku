@@ -1,9 +1,11 @@
-<div x-data="singleCell({{ json_encode($cell) }}, {{ json_encode($disabled) }})" class="relative size-fit">
+@props(['coord'])
+
+<div x-data="singleCell('{{ $coord }}')" class="relative size-fit">
     <template x-if="showXLabel()">
         <div 
             class="absolute -top-7 w-12 text-center text-xl text-gray-700"
             :style="getXOffset"
-            x-text="cell.xcoord"
+            x-text="xCoordinate"
         >
         </div>
     </template>
@@ -12,7 +14,7 @@
         <div 
             class="absolute h-12 -left-5 my-3 text-xl text-gray-700"
             :style="getYOffset"
-            x-text="cell.ycoord"
+            x-text="yCoordinate"
         >
         </div>
     </template>
@@ -40,7 +42,7 @@
         >
             <div
                 class="text-4xl text-center my-1"
-                x-text="cell.value"
+                x-text="value"
             >
             </div>
         </div>
@@ -49,25 +51,63 @@
 
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('singleCell', (cell, disabled) => ({
-            cell: [],
-            borders: [],
-            disabled: true,
+        Alpine.data('singleCell', (coord) => ({
+            coord: coord,
             edit: false,
-            init() {
-                this.cell = cell;
-                this.disabled = disabled;
-                this.setBorders();
+            borders: [],
+            get cell() {
+                return Alpine.raw(Alpine.store('game').getCell(this.coord));
+            },
+            get value() {
+                return (this.cell) ? this.cell.value : '';
+            },
+            get xCoordinate() {
+                return (this.cell) ? this.cell.xCoordinate : '';
+            },
+            get yCoordinate() {
+                return (this.cell) ? this.cell.yCoordinate : '';
+            },
+            get disabled() {
+                return true;
+            },
+            get possibilities() {
+                return (this.cell) ? this.cell.possibilities : '';
+            },
+            hasBorder(value) {
+                return this.borders.includes(value);
+            },
+            setBorders() { 
+                switch (this.xCoordinate) {
+                    case 'A':
+                        this.borders.push('left');
+                        break;
+                    case 'C':
+                    case 'F':
+                    case 'I':
+                        this.borders.push('right');
+                        break;
+                }
+
+                switch (this.yCoordinate) {
+                    case '1':
+                        this.borders.push('top');
+                        break;
+                    case '3':
+                    case '6':
+                    case '9':
+                        this.borders.push('bottom');
+                        break;
+                }
             },
             showXLabel() {
-                return this.cell.ycoord === 1;
+                return this.yCoordinate === '1';
             },
             showYLabel() {
-                return this.cell.xcoord === 'A';
+                return this.xCoordinate === 'A';
             },
             getXOffset() {
                 let res = 0;
-                switch(this.cell.xcoord) {
+                switch(this.xCoordinate) {
                     case 'B':
                         res = 1;
                         break;
@@ -95,40 +135,20 @@
                     default: 
                         res = 0;
                         break;
-                };
-                return "left: -" + res + "px;";
+                }
+                return res;
             },
             getYOffset() {
-                return "top: -" + this.cell.ycoord - 1 + "px;";
-            },
+                return "top: -" + this.yCoordinate - 1 + "px;";
+            }, 
             getOffset() {
                 return this.getYOffset() + ' ' + this.getXOffset();
             },
-            hasBorder(value) {
-                return this.borders.includes(value);
-            },
-            setBorders() { 
-                switch (this.cell.xcoord) {
-                    case 'A':
-                        this.borders.push('left');
-                        break;
-                    case 'C':
-                    case 'F':
-                    case 'I':
-                        this.borders.push('right');
-                        break;
-                }
-
-                switch (this.cell.ycoord) {
-                    case 1:
-                        this.borders.push('top');
-                        break;
-                    case 3:
-                    case 6:
-                    case 9:
-                        this.borders.push('bottom');
-                        break;
-                }
+            init() {
+                const obj = this;
+                this.$watch('cell', function () {
+                    obj.setBorders();
+                });
             }
         }));
     });

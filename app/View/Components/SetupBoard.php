@@ -5,7 +5,6 @@ namespace App\View\Components;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Illuminate\Support\Facades\Session;
 
 class SetupBoard extends Component
 {
@@ -16,15 +15,6 @@ class SetupBoard extends Component
     const END_STATE = 'end';
 
     public $currentState = self::BEGINNING_STATE;
-
-    /**
-     * Create a new component instance.
-     */
-    public function __construct()
-    {
-        $game = Session::get('game');
-        $this->currentState = $game['state'];
-    }
 
     /**
      * Get the view / contents that represent the component.

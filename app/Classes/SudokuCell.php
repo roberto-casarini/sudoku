@@ -4,15 +4,15 @@ namespace App\Classes;
 
 class SudokuCell
 {
-    private string $xCoordinate = '';
+    public string $xCoordinate = '';
 
-    private string $yCoordinate = '';
+    public string $yCoordinate = '';
 
-    private $value = null;
+    public $value = null;
 
-    private array $possibilities = [];
+    public array $possibilities = [];
 
-    private bool $setup = false;
+    public bool $setup = false;
 
     public function __construct($xCoordinate, $yCoordinate)
     {
@@ -20,7 +20,7 @@ class SudokuCell
         $this->yCoordinate = $yCoordinate;
     }
 
-    public function getXCoordinate(): string
+    /*public function getXCoordinate(): string
     {
         return $this->xCoordinate;
     }
@@ -43,7 +43,7 @@ class SudokuCell
     public function getSetup(): bool
     {
         return $this->setup;
-    }
+    }*/
 
     public function showPossibilities()
     {

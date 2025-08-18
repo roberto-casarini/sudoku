@@ -5,21 +5,20 @@ namespace App\View\Components;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Illuminate\Support\Facades\Session;
 
 class SudokuBoard extends Component
 {
-    public $cells = [];
-    public $disabled = true;
+    public $coords = [];
 
-    /**
-     * Create a new component instance.
-     */
-    public function __construct()
+    public function __construct() 
     {
-        $game = Session::get('game');
-        $this->cells = $game['cells'];
-        $this->disabled = $game['disabled'];
+        //Draws the sudoku board and cells
+        foreach(range(1, 9) as $y) {
+            foreach(range(1, 9) as $x) {
+                $xValue = toLetter($x);
+                $this->coords[] = $xValue . '-' . $y;
+            }
+        }
     }
 
     /**

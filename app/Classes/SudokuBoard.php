@@ -12,24 +12,9 @@ class SudokuBoard implements \Serializable
     {
         foreach(range(1, 9) as $y) {
             foreach(range(1, 9) as $x) {
-                $this->cells[] = new SudokuCell($this->toLetter($x), $y);
+                $this->cells[] = new SudokuCell(toLetter($x), $y);
             }
         }
-    }
-
-    private function toLetter($value): string
-    {
-        return match($value) {
-            1 => "A",
-            2 => "B",
-            3 => "C",
-            4 => "D",
-            5 => "E", 
-            6 => "F",
-            7 => "G",
-            8 => "H",
-            9 => "I"
-        };
     }
 
     public function getAllCells(): array
@@ -40,14 +25,14 @@ class SudokuBoard implements \Serializable
     public function getColumnCells($xCoordinate): array
     {
         return array_filter($this->cells, function ($cell) use($xCoordinate) {
-            return $cell->getXCoordinate() == $xCoordinate;
+            return $cell->xCoordinate == $xCoordinate;
         });
     }
 
     public function getRowCells($yCoordinate)
     {
         return array_filter($this->cells, function ($cell) use($yCoordinate) {
-            return $cell->getYCoordinate() == $yCoordinate;
+            return $cell->yCoordinate == $yCoordinate;
         });
     }
 
@@ -67,7 +52,7 @@ class SudokuBoard implements \Serializable
         };
 
         return array_filter($this->cells, function ($cell) use($filter) {
-            if (in_array($cell->getXCoordinate(), $filter["x"]) && in_array($cell->getYCoordinate(), $filter["y"])) {
+            if (in_array($cell->xCoordinate, $filter["x"]) && in_array($cell->yCoordinate, $filter["y"])) {
                 return $cell;
             }
         });
@@ -76,7 +61,7 @@ class SudokuBoard implements \Serializable
     public function findCell($xCoordinate, $yCoordinate): SudokuCell|null
     {
         $res = array_values(array_filter($this->cells, function ($cell) use($xCoordinate, $yCoordinate) {
-            return ($cell->getXCoordinate() == $xCoordinate) && ($cell->getYCoordinate() == $yCoordinate);
+            return ($cell->xCoordinate == $xCoordinate) && ($cell->yCoordinate == $yCoordinate);
         }));
         return (count($res) > 0) ? $res[0] : null;
     }
@@ -95,7 +80,7 @@ class SudokuBoard implements \Serializable
         $pieces = [];
 
         foreach($cells as $cell) {
-            $pieces[] = $cell->getXCoordinate() . $cell->getYCoordinate();
+            $pieces[] = $cell->xCoordinate . $cell->yCoordinate;
         }
         
         return implode(", ", $pieces);
@@ -103,11 +88,11 @@ class SudokuBoard implements \Serializable
 
     public function serialize()
     {
-        return $this->cells;
+        return json_encode($this->cells);
     }
 
     public function unserialize(string $data): void
     {
-        $this->cells = unserialize($data);
+        $this->cells = json_decode($data);
     }
 }

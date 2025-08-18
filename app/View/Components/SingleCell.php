@@ -8,18 +8,6 @@ use Illuminate\View\Component;
 
 class SingleCell extends Component
 {
-    public $cell = [];
-    public $disabled = true;
-
-    /**
-     * Create a new component instance.
-     */
-    public function __construct($cell, $disabled)
-    {
-        $this->cell = $cell;
-        $this->disabled = $disabled;
-    }
-
     /**
      * Get the view / contents that represent the component.
      */
