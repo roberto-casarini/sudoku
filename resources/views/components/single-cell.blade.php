@@ -36,16 +36,25 @@
         }"
         :style="getOffset"
     >
-
-        <div
-            class="w-12 h-12 relative" 
-        >
+        <template x-if="showPossibilities">
+            <div class="h-full w-full text-xs text-center grid grid-cols-3">
+                <template x-for="col in Array.from({length: 9}, (_, i) => i + 1)">
+                    <div :class="{
+                        'invisible': !hasPossibility(i),
+                    }"
+                    style="position: relative; top: -2px; left: -2px;"
+                    x-text="i"
+                    ></div>
+                </template>
+            </div>
+        </template>
+        <template x-if="!showPossibilities">
             <div
                 class="text-4xl text-center my-1"
                 x-text="value"
             >
             </div>
-        </div>
+        </template>
     </div>
 </div>
 
@@ -71,7 +80,13 @@
                 return true;
             },
             get possibilities() {
-                return (this.cell) ? this.cell.possibilities : '';
+                return (this.cell) ? this.cell.possibilities : [];
+            },
+            showPossibilities() {
+                return this.possibilities.length >  0;
+            },
+            hasPossibility(value) {
+                return (this.possibilities.length > 0) ? this.possibilities.includes(value) : false;
             },
             hasBorder(value) {
                 return this.borders.includes(value);
