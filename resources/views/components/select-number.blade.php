@@ -8,8 +8,9 @@
                     'bg-red-600': showPossibilities,
                     'bg-green-600': !showPossibilities
                 }"
-                :disabled="disabled"
+                :disabled="disabledPossibilities"
                 x-text="possibilityButtonText"
+                @click="setPossibilitiesBtn"
             >
             </button>
         </div>
@@ -25,7 +26,8 @@
                 >
                 <div
                     class="mt-1"
-                    x-text="i"    
+                    x-text="i"
+                    @click="setCellValue(i)"    
                 >
                 </div>
             </div>
@@ -39,7 +41,7 @@
         Alpine.data('selectNumber', () => ({
             cell: '',
             disabled: true,
-            disabled_possibilities: true,
+            disabledPossibilities: true,
             showPossibilities: false,
             selectedValues: [],
             isSelected(value) {
@@ -50,7 +52,63 @@
             },
             resetSelect() {
                 this.showPossibilities = false;
-                this.selectedValues = [];
+                this.setSelectedValues([]);
+            },
+            setCellValue(value) {
+                const store = Alpine.store('game');
+                if (store.game_status === 'setup') {
+                    store.setCellValueSetup(this.cell, value);
+                } else if (store.game_status === 'playing')  {
+                    console.log(value);
+                    store.setCellValue(this.cell, value, this.showPossibilities);
+                }
+            },
+            setSelectedValues(value) {
+                this.selectedValues = value;
+            },
+            setPossibilitiesBtn() {
+                this.showPossibilities = !this.showPossibilities;
+            },
+            init() {
+                const obj = this;
+                this.$watch('$store.game.game_status', function (value) {
+                    switch(value) {
+                        case 'beginning':
+                            obj.disabled = true;
+                            obj.disabledPossibilities = true;
+                            obj.showPossibilities = false;
+                            obj.selectedValues = [];
+                            obj.cell = '';
+                            break;
+                        case 'setup':
+                            obj.disabled = false;
+                            obj.disabledPossibilities = true;
+                            break;
+                        case 'playing':
+                            obj.disabled = false;
+                            obj.disabledPossibilities = false;
+                            obj.cell = '';
+                            obj.resetSelect();
+                            break;
+                        case 'end':
+                            obj.disabled = true;
+                            obj.disabledPossibilities = true;
+                            break;    
+                    }
+                });
+
+                this.$watch('$store.game.cell_selected', function (value) {
+                    obj.cell = value;
+                });
+                this.$watch('$store.game.cell_selected_values', function (value) {
+                    if (Array.isArray(value)) {
+                        obj.setSelectedValues(value);
+                        obj.showPossibilities = true;
+                    } else {
+                        obj.setSelectedValues([value]);
+                        obj.showPossibilities = false;
+                    }
+                });
             }
         }));
     });

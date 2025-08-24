@@ -1,10 +1,10 @@
-<div x-data="setupBoard('{{ $currentState }}')" class="flex flex-col gap-1 w-auto p-3 bg-white">
+<div x-data="setupBoard()" class="flex flex-col gap-1 w-auto p-3 bg-white">
     <button 
         type="button"
         class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
         :disabled="isSetupDisabled"
         x-cloak
-        @click="setup"
+        @click="setStatus('setup')"
     >
         Setup
     </button>
@@ -13,33 +13,42 @@
         class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
         :disabled="isStartDisabled"
         x-cloak
-        click="play"
+        @click="setStatus('playing')"
     >
-        Start
+        Play
     </button>
     <button 
         type="button"
         class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
         :disabled="isStopDisabled"
         x-cloak
-        click="stop"
+        @click="setStatus('end')"
     >
-        Stop
+        Finish
     </button>
     <button 
         type="button"
         class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
         :disabled="isPauseDisabled"
         x-cloak
-        click="pause"
+        @click="setStatus('paused')"
         x-text="pauseButtonText"
     >
     </button>
     <button 
         type="button"
         class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+        :disabled="isBackDisabled"
+        x-cloak
+        @click="backOneMove"
+    >
+        Back One Move
+    </button>
+    <button 
+        type="button"
+        class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
         :disabled="isResetDisabled"
-        click="resetGame"
+        @click="resetGame"
         x-cloak
     >
         Reset
@@ -48,10 +57,10 @@
 
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('setupBoard', (currentState) => ({
+        Alpine.data('setupBoard', () => ({
             state: 'beginning',
             init() {
-                this.state = currentState;
+                this.$watch('$store.game.game_status', (value) => {this.state = value});     
             },
             pauseButtonText() {
                 return "Pause";
@@ -68,12 +77,25 @@
             isPauseDisabled() {
                 return !['playing', 'paused'].includes(this.state);
             },
+            isBackDisabled() {
+                return !['playing', 'paused'].includes(this.state);
+            },
             isResetDisabled() {
                 return this.state !== 'end';
             },
-            setup() {
-                // chiamo con un push un metodo dal controller
-                // modifico lo stato in base alla risposta 
+            setStatus(state) {
+                const store = Alpine.store('game');
+                store.setStatus(state);
+                this.state = store.game_status;
+            },
+            resetGame() {
+                const store = Alpine.store('game');
+                store.resetGame();
+                this.state = store.game_status;
+            },
+            backOneMove() {
+                const store = Alpine.store('game');
+                store.backOneMove();
             }
         }));
     });

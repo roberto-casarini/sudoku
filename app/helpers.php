@@ -32,3 +32,12 @@ if (!function_exists('toLetter')) {
         };
     }
 }
+
+if (!function_exists('cellRealValue')) {
+    function cellRealValue($cell) {
+        if (is_array($cell) && key_exists('value', $cell) && key_exists('possibilities', $cell)) {
+            return (is_array($cell['possibilities']) && count($cell['possibilities']) > 0) ? $cell['possibilities'] : $cell['value'];
+        }
+        return null;
+    }
+}

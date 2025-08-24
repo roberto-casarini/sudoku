@@ -4,7 +4,7 @@
     <template x-if="showXLabel()">
         <div 
             class="absolute -top-7 w-12 text-center text-xl text-gray-700"
-            :style="getXOffset"
+            :style="xOffset"
             x-text="xCoordinate"
         >
         </div>
@@ -13,7 +13,7 @@
     <template x-if="showYLabel()">
         <div 
             class="absolute h-12 -left-5 my-3 text-xl text-gray-700"
-            :style="getYOffset"
+            :style="yOffset"
             x-text="yCoordinate"
         >
         </div>
@@ -34,23 +34,31 @@
             'cursor-pointer': !disabled,
             'bg-yellow-300': edit
         }"
-        :style="getOffset"
+        :style="offset"
+        @click="selectCell"
     >
-        <template x-if="showPossibilities">
-            <div class="h-full w-full text-xs text-center grid grid-cols-3">
-                <template x-for="col in Array.from({length: 9}, (_, i) => i + 1)">
-                    <div :class="{
-                        'invisible': !hasPossibility(i),
-                    }"
-                    style="position: relative; top: -2px; left: -2px;"
-                    x-text="i"
-                    ></div>
+        <template x-if="showPossibilities()">
+            <div 
+                class="h-full w-full text-xs text-center grid grid-cols-3"
+            >
+                <template x-for="i in 9">
+                    <div 
+                        :class="{
+                            'invisible': !hasPossibility(i),
+                        }"
+                        style="position: relative; top: -2px; left: -2px;"
+                        x-text="i"
+                    >
+                    </div>
                 </template>
             </div>
         </template>
-        <template x-if="!showPossibilities">
+        <template x-if="!showPossibilities()">
             <div
                 class="text-4xl text-center my-1"
+                :class="{
+                    'text-red-600': !setup
+                }"
                 x-text="value"
             >
             </div>
@@ -62,10 +70,11 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('singleCell', (coord) => ({
             coord: coord,
-            edit: false,
             borders: [],
+            disabled: true,
+            settingMode: true,
             get cell() {
-                return Alpine.raw(Alpine.store('game').getCell(this.coord));
+                return Alpine.store('game').getCell(this.coord);
             },
             get value() {
                 return (this.cell) ? this.cell.value : '';
@@ -76,11 +85,57 @@
             get yCoordinate() {
                 return (this.cell) ? this.cell.yCoordinate : '';
             },
-            get disabled() {
-                return true;
-            },
             get possibilities() {
                 return (this.cell) ? this.cell.possibilities : [];
+            },
+            get setup() {
+                return (this.cell) ? this.cell.setup : false;
+            },
+            get edit() {
+                const store = Alpine.store('game');
+                if (['setup', 'playing'].includes(store.game_status)) {
+                    return store.cell_selected === this.coord;
+                }
+                return false;
+            },
+            get xOffset() {
+                let res = 0;
+                switch(this.xCoordinate) {
+                    case 'B':
+                        res = 1;
+                        break;
+                    case 'C':
+                        res = 2;
+                        break;
+                    case 'D': 
+                        res = 3;
+                        break;
+                    case 'E': 
+                        res = 4;
+                        break;
+                    case 'F': 
+                        res = 5;
+                        break;
+                    case 'G': 
+                        res = 6;
+                        break;
+                    case 'H': 
+                        res = 7;
+                        break;
+                    case 'I': 
+                        res = 8;
+                        break;
+                    default: 
+                        res = 0;
+                        break;
+                }
+                return 'left: -' + res + 'px;';
+            },
+            get yOffset() {
+                return 'top: -' + (parseInt(this.yCoordinate) - 1) + 'px;';
+            }, 
+            get offset() {
+                return this.yOffset + ' ' + this.xOffset;
             },
             showPossibilities() {
                 return this.possibilities.length >  0;
@@ -120,49 +175,44 @@
             showYLabel() {
                 return this.xCoordinate === 'A';
             },
-            getXOffset() {
-                let res = 0;
-                switch(this.xCoordinate) {
-                    case 'B':
-                        res = 1;
-                        break;
-                    case 'C':
-                        res = 2;
-                        break;
-                    case 'D': 
-                        res = 3;
-                        break;
-                    case 'E': 
-                        res = 4;
-                        break;
-                    case 'F': 
-                        res = 5;
-                        break;
-                    case 'G': 
-                        res = 6;
-                        break;
-                    case 'H': 
-                        res = 7;
-                        break;
-                    case 'I': 
-                        res = 8;
-                        break;
-                    default: 
-                        res = 0;
-                        break;
+            selectCell() {
+                if (!this.disabled) {
+                    let value = this.value;
+                    let possibilities = Alpine.raw(this.possibilities);
+                    if (Array.isArray(possibilities) && (possibilities.length > 0)) {
+                        value = possibilities;
+                    }
+                    Alpine.store('game').selectCell(this.coord, value);
                 }
-                return res;
-            },
-            getYOffset() {
-                return "top: -" + this.yCoordinate - 1 + "px;";
-            }, 
-            getOffset() {
-                return this.getYOffset() + ' ' + this.getXOffset();
-            },
+            },  
             init() {
                 const obj = this;
                 this.$watch('cell', function () {
                     obj.setBorders();
+                });
+                this.$watch('$store.game.game_status', function (value) {
+                    switch(value) {
+                        case 'beginning':
+                            obj.edit = false;
+                            obj.disabled = true;
+                            obj.settingMode = false;
+                            break;
+                        case 'setup':
+                            obj.disabled = false;
+                            obj.settingMode = true;
+                            break;
+                        case 'playing':
+                            obj.disabled = false;
+                            if (obj.value == '') {
+                                obj.settingMode = false;
+                            }
+                            obj.edit = false;
+                            break;
+                        case 'end':
+                            obj.edit = false;
+                            obj.disabled = true;
+                            break;
+                    }
                 });
             }
         }));

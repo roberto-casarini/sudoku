@@ -41,35 +41,55 @@ class SudokuBL
         return $this->data->logs;
     }
 
-    public function setCellValue($xCoordinate, $yCoordinate, $value, $setup = false): void
+    public function setCellValue($xCoordinate, $yCoordinate, $value, $setPossibilities = false, $saveLog = true): array | int | null
     {
         $board = $this->getBoard();
         $cell = $board->findCell($xCoordinate, $yCoordinate);
-        if (is_object($cell)) {
+        if (is_object($cell) && $saveLog) {
             $this->data->logs[] = [
                 'xCoordinate' => $cell->xCoordinate,
                 'yCoordinate' => $cell->yCoordinate,
                 'value' => $cell->value,
-                'setup' => $cell->setup,
+                'possibilities' => $cell->possibilities,
+                'setup' => false,
             ];
         }
-        $board->setCellValue($xCoordinate, $yCoordinate, $value, $setup);
+        $res = $board->setCellValue($xCoordinate, $yCoordinate, $value, $setPossibilities);
 
         // save to session
         $this->persistence->saveGame($this->data);
+
+        return $res;
     }
 
-    public function back(): void
+    public function setCellValueSetup($xCoordinate, $yCoordinate, $value): int | null
+    {
+        $board = $this->getBoard();
+
+        $res = $board->setCellValueSetup($xCoordinate, $yCoordinate, $value);
+
+        // save to session
+        $this->persistence->saveGame($this->data);
+
+        return $res;
+    }
+
+    public function back(): array | null
     {
         if (count($this->data->logs) <= 0) {
-            return;
+            return null;
         }
 
         $cell = array_pop($this->data->logs);
-        $this->setCellValue($cell['xCoordinate'], $cell['yCoordinate'], $cell['value'], $cell['setup']);
+        if ($cell['setup'] == false) {
+            $value = cellRealValue($cell);
+            $this->setCellValue($cell['xCoordinate'], $cell['yCoordinate'], $value, is_array($value), false);
 
-        // save to session
-        $this->persistence->saveGame($this->data);
+            // save to session
+            $this->persistence->saveGame($this->data);
+            return $cell;
+        }
+        return null;
     }
 
     public function reset(): void

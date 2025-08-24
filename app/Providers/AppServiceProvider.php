@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Classes\Persistence\PersistenceFake;
 use Illuminate\Support\ServiceProvider;
 use App\Classes\Persistence\PersistenceInterface;
 use App\Classes\Persistence\PersistenceSession;

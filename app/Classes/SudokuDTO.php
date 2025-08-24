@@ -28,6 +28,7 @@ class SudokuDTO
         $this->board = new SudokuBoard();
         $this->status = self::BEGINNING_STATE;
         $this->createdAt = Carbon::now();
+        $this->logs = [];
     }
 
     public function setStatus($status)

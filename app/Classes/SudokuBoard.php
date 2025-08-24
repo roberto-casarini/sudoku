@@ -4,7 +4,7 @@ namespace App\Classes;
 
 use App\Classes\SudokuCell;
 
-class SudokuBoard implements \Serializable
+class SudokuBoard
 {
     private array $cells = [];
 
@@ -66,13 +66,22 @@ class SudokuBoard implements \Serializable
         return (count($res) > 0) ? $res[0] : null;
     }
 
-    public function setCellValue($xCoordinate, $yCoordinate, $value, $setup = false): void
+    public function setCellValue($xCoordinate, $yCoordinate, $value, $setPossibilities = false): array | int | null
     {
         $cell = $this->findCell($xCoordinate, $yCoordinate);
         if (! is_object($cell)) {
-            return;
+            return null;
         }
-        $cell->setProps($value, $setup);
+        return $cell->setValue($value, $setPossibilities);
+    }
+
+    public function setCellValueSetup($xCoordinate, $yCoordinate, $value): int | null
+    {
+        $cell = $this->findCell($xCoordinate, $yCoordinate);
+        if (! is_object($cell)) {
+            return null;
+        }
+        return $cell->setValueSetup($value);
     }
 
     public static function toString(array $cells): string
@@ -86,13 +95,13 @@ class SudokuBoard implements \Serializable
         return implode(", ", $pieces);
     }
 
-    public function serialize()
+    public function __serialize(): array
     {
-        return json_encode($this->cells);
+        return $this->cells;
     }
 
-    public function unserialize(string $data): void
+    public function __unserialize($data): void
     {
-        $this->cells = json_decode($data);
+        $this->cells = $data;
     }
 }
