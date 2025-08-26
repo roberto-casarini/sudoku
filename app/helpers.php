@@ -33,11 +33,20 @@ if (!function_exists('toLetter')) {
     }
 }
 
-if (!function_exists('cellRealValue')) {
-    function cellRealValue($cell) {
+if (!function_exists('getCellValue')) {
+    function getCellValue($cell) {
         if (is_array($cell) && key_exists('value', $cell) && key_exists('possibilities', $cell)) {
             return (is_array($cell['possibilities']) && count($cell['possibilities']) > 0) ? $cell['possibilities'] : $cell['value'];
         }
         return null;
+    }
+}
+
+if (!function_exists('getCellCoords')) {
+    function getCellCoords($cell) {
+        if (is_array($cell) && isset($cell['xCoordinate']) && isset($cell['yCoordinate'])) {
+            return $cell['xCoordinate'] . '-' . $cell['yCoordinate']; 
+        }
+        return '';
     }
 }

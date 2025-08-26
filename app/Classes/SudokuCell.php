@@ -25,6 +25,14 @@ class SudokuCell
         return count($this->possibilities) > 0;
     }
 
+    public function resetValue(int|null $value, array $possibilities = []): array | int | null
+    {
+        $this->possibilities = $possibilities;
+        $this->value = $value;
+        $this->setup = false;
+        return (count($possibilities) > 0) ? $this->possibilities : $this->value;
+    }
+
     public function setValue($value, $setPossibilities = false): array | int | null
     {
         $res = null;

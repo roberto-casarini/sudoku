@@ -59,7 +59,6 @@
                 if (store.game_status === 'setup') {
                     store.setCellValueSetup(this.cell, value);
                 } else if (store.game_status === 'playing')  {
-                    console.log(value);
                     store.setCellValue(this.cell, value, this.showPossibilities);
                 }
             },
@@ -103,10 +102,14 @@
                 this.$watch('$store.game.cell_selected_values', function (value) {
                     if (Array.isArray(value)) {
                         obj.setSelectedValues(value);
-                        obj.showPossibilities = true;
+                        if (value.length > 0) {
+                            obj.showPossibilities = true;
+                        }
                     } else {
                         obj.setSelectedValues([value]);
-                        obj.showPossibilities = false;
+                        if (value > 0) {
+                            obj.showPossibilities = false;
+                        }
                     }
                 });
             }

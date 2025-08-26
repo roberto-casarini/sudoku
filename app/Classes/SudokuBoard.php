@@ -84,6 +84,17 @@ class SudokuBoard
         return $cell->setValueSetup($value);
     }
 
+    public function resetCellValue($xCoordinate, $yCoordinate, int|null $value, array $possibilities = []): array | int | null
+    {
+        $cell = $this->findCell($xCoordinate, $yCoordinate);
+        if (! is_object($cell)) {
+            return null;
+        }
+        $res = $cell->resetValue($value, $possibilities);
+        //dd($res);
+        return $res;
+    }
+
     public static function toString(array $cells): string
     {
         $pieces = [];

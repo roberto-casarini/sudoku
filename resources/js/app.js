@@ -98,6 +98,7 @@ document.addEventListener('alpine:init', () => {
         backOneMove() {
             this.manageRequest('/back-one-move')
                 .then((resp) => {
+                    console.log(resp);
                     this.cell_selected = resp.cell;
                     this.cell_selected_values = resp.cell_value;
                 });

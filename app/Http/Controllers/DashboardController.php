@@ -138,8 +138,8 @@ class DashboardController extends Controller
         return [
             'cells' => $game->getBoard()->getAllCells(),
             'game_status' => $game->getStatus(),
-            'cell' => (is_array($cell) && isset($cell['xCoordinate']) && isset($cell['yCoordinate'])) ? $cell['xCoordinate'] . '-' . $cell['yCoordinate'] : null,
-            'cell_value' => cellRealValue($cell),
+            'cell' => getCellCoords($cell),
+            'cell_value' => getCellValue($cell),
             'message' => 'Back one move',
             'request_status' => 'OK',
         ];

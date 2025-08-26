@@ -41,11 +41,11 @@ class SudokuBL
         return $this->data->logs;
     }
 
-    public function setCellValue($xCoordinate, $yCoordinate, $value, $setPossibilities = false, $saveLog = true): array | int | null
+    public function setCellValue($xCoordinate, $yCoordinate, $value, $setPossibilities = false): array | int | null
     {
         $board = $this->getBoard();
         $cell = $board->findCell($xCoordinate, $yCoordinate);
-        if (is_object($cell) && $saveLog) {
+        if (is_object($cell)) {
             $this->data->logs[] = [
                 'xCoordinate' => $cell->xCoordinate,
                 'yCoordinate' => $cell->yCoordinate,
@@ -82,8 +82,7 @@ class SudokuBL
 
         $cell = array_pop($this->data->logs);
         if ($cell['setup'] == false) {
-            $value = cellRealValue($cell);
-            $this->setCellValue($cell['xCoordinate'], $cell['yCoordinate'], $value, is_array($value), false);
+            $this->resetCellValue($cell);
 
             // save to session
             $this->persistence->saveGame($this->data);
@@ -100,7 +99,12 @@ class SudokuBL
     public function setStatus($status)
     {
         $this->data->setStatus($status);
-
         $this->persistence->saveGame($this->data);
+    }
+
+    private function resetCellValue(array $cell): array | int | null
+    {
+        $board = $this->getBoard();
+        return $board->resetCellValue($cell['xCoordinate'], $cell['yCoordinate'], $cell['value'], $cell['possibilities']);
     }
 }
