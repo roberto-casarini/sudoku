@@ -82,6 +82,7 @@ document.addEventListener('alpine:init', () => {
             const body = JSON.stringify({ coord, value, possibilities });
             this.manageRequest('/set-cell-value', body)
                 .then((resp) => {
+                    console.log(resp);
                     this.cell_selected = resp.cell;
                     this.cell_selected_values = resp.cell_value;
                 });

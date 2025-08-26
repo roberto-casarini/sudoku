@@ -40,6 +40,7 @@ class SudokuCell
             if (in_array($value, $this->possibilities)) {
                 if (($key = array_search($value, $this->possibilities)) !== false) {
                     unset($this->possibilities[$key]);
+                    $this->possibilities = array_values($this->possibilities);
                 }
             } else {
                 $this->possibilities[] = $value;
