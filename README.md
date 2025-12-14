@@ -21,7 +21,7 @@ The project is organized to support multiple implementations while sharing busin
 
 - **Shared Business Logic** (`app/Classes/`) - Used by all implementations
 - **Livewire Components** (`app/Livewire/`) - Full-stack reactive components
-- **MVC Controllers** (`app/Http/Controllers/`) - Traditional controller-based API
+- **MVC Controllers** (`app/Http/Controllers/`) - Controller-based API with Alpine.js for frontend reactivity
 - **View Components** - Separate views for each implementation in `resources/views/`
 
 See [IMPLEMENTATION_STRUCTURE.md](IMPLEMENTATION_STRUCTURE.md) for detailed documentation.
