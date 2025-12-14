@@ -125,6 +125,17 @@ class SingleCell extends Component
     }
 
     /**
+     * Check if this cell was set during setup (should be black, not red).
+     * 
+     * @return bool True if the cell value was set during setup
+     */
+    #[Computed]
+    public function isSetupCell(): bool
+    {
+        return $this->cell()?->setup ?? false;
+    }
+
+    /**
      * Get the borders array, initializing it if needed.
      * 
      * @return array<string> Border positions for visual styling
@@ -338,6 +349,8 @@ class SingleCell extends Component
         }
 
         [$x, $y] = explode('-', $cell);
+        $gameStatus = $this->getGame()->getStatus();
+        $isSetupMode = $gameStatus === SudokuDTO::SETUP_STATE;
 
         if ($showPossibilities) {
             // Toggle possibilities for each value
@@ -349,7 +362,13 @@ class SingleCell extends Component
             $value = count($values) > 0 ? (int)$values[0] : null;
             $currentCell = $this->getGame()->getBoard()->findCell($x, $y);
             $newValue = ($currentCell && $currentCell->value === $value) ? null : $value;
-            $this->getGame()->setCellValue($x, $y, $newValue, false);
+            
+            // Use setup method if in setup mode, otherwise use normal method
+            if ($isSetupMode) {
+                $this->getGame()->setCellValueSetup($x, $y, $newValue);
+            } else {
+                $this->getGame()->setCellValue($x, $y, $newValue, false);
+            }
         }
 
         $this->edit = false;

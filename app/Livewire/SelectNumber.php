@@ -73,6 +73,8 @@ class SelectNumber extends Component
         }
 
         [$x, $y] = explode('-', $this->cell);
+        $gameStatus = $this->getGame()->getStatus();
+        $isSetupMode = $gameStatus === SudokuDTO::SETUP_STATE;
 
         if ($this->showPossibilities) {
             // Toggle possibility using business logic
@@ -82,7 +84,13 @@ class SelectNumber extends Component
             // Toggle if same value (get current value first)
             $currentCell = $this->getGame()->getBoard()->findCell($x, $y);
             $newValue = ($currentCell && $currentCell->value === $value) ? null : $value;
-            $this->getGame()->setCellValue($x, $y, $newValue, false);
+            
+            // Use setup method if in setup mode, otherwise use normal method
+            if ($isSetupMode) {
+                $this->getGame()->setCellValueSetup($x, $y, $newValue);
+            } else {
+                $this->getGame()->setCellValue($x, $y, $newValue, false);
+            }
         }
 
         // Update UI state from business logic

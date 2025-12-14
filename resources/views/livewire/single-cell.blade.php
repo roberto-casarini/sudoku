@@ -48,7 +48,7 @@
             <div
                 @class([
                     'text-4xl text-center my-1',
-                    'text-red-600' => !$this->settingMode
+                    'text-red-600' => !$this->isSetupCell
                 ])>
                 {{ $this->cellValue ?? '' }}
             </div>
