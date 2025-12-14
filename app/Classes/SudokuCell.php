@@ -13,10 +13,10 @@ class SudokuCell
     public string $xCoordinate;
     public string $yCoordinate;
     public ?int $value = null;
-    
+
     /** @var array<int> */
     public array $possibilities = [];
-    
+
     public bool $setup = false;
 
     public function __construct(string $xCoordinate, string|int $yCoordinate)
@@ -75,8 +75,8 @@ class SudokuCell
         $key = array_search($value, $this->possibilities, true);
         
         if ($key !== false) {
-            unset($this->possibilities[$key]);
-            $this->possibilities = array_values($this->possibilities);
+                    unset($this->possibilities[$key]);
+                    $this->possibilities = array_values($this->possibilities);
         } else {
             $this->possibilities[] = $value;
             sort($this->possibilities); // Keep possibilities sorted
