@@ -1,14 +1,27 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group.
+|
+| The routes are conditionally loaded based on the active implementation
+| configured in config/sudoku.php
+|
+*/
 
-Route::post('/start-game', [DashboardController::class, 'startGame']);
-Route::post('/set-status', [DashboardController::class, 'setStatus']);
-Route::post('/set-cell-value', [DashboardController::class, 'setCellValue']);
-Route::post('/set-cell-value-setup', [DashboardController::class, 'setCellValueSetup']);
-Route::post('/reset', [DashboardController::class, 'resetGame']);
-Route::post('/back-one-move', [DashboardController::class, 'backOneMove']);
+$implementation = config('sudoku.implementation', 'controllers');
+
+if ($implementation === 'livewire') {
+    // Load Livewire routes
+    require __DIR__.'/livewire.php';
+} else {
+    // Load MVC + Alpine.js routes
+    require __DIR__.'/controllers.php';
+}

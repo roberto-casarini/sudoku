@@ -1,0 +1,102 @@
+<div x-data="setupBoard()" class="flex flex-col gap-1 w-auto p-3 bg-white">
+    <button 
+        type="button"
+        class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+        :disabled="isSetupDisabled"
+        x-cloak
+        @click="setStatus('setup')"
+    >
+        Setup
+    </button>
+    <button 
+        type="button"
+        class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+        :disabled="isStartDisabled"
+        x-cloak
+        @click="setStatus('playing')"
+    >
+        Play
+    </button>
+    <button 
+        type="button"
+        class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+        :disabled="isStopDisabled"
+        x-cloak
+        @click="setStatus('end')"
+    >
+        Finish
+    </button>
+    <button 
+        type="button"
+        class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+        :disabled="isPauseDisabled"
+        x-cloak
+        @click="setStatus('paused')"
+        x-text="pauseButtonText"
+    >
+    </button>
+    <button 
+        type="button"
+        class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+        :disabled="isBackDisabled"
+        x-cloak
+        @click="backOneMove"
+    >
+        Back One Move
+    </button>
+    <button 
+        type="button"
+        class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+        :disabled="isResetDisabled"
+        @click="resetGame"
+        x-cloak
+    >
+        Reset
+    </button>                    
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('setupBoard', () => ({
+            state: 'beginning',
+            init() {
+                this.$watch('$store.game.game_status', (value) => {this.state = value});     
+            },
+            pauseButtonText() {
+                return "Pause";
+            },
+            isSetupDisabled() {
+                return this.state !== 'beginning';
+            },
+            isStartDisabled() {
+                return this.state !== 'setup';
+            },
+            isStopDisabled() {
+                return ['beginning', 'setup', 'end'].includes(this.state);
+            },
+            isPauseDisabled() {
+                return !['playing', 'paused'].includes(this.state);
+            },
+            isBackDisabled() {
+                return !['playing', 'paused'].includes(this.state);
+            },
+            isResetDisabled() {
+                return this.state !== 'end';
+            },
+            setStatus(state) {
+                const store = Alpine.store('game');
+                store.setStatus(state);
+                this.state = store.game_status;
+            },
+            resetGame() {
+                const store = Alpine.store('game');
+                store.resetGame();
+                this.state = store.game_status;
+            },
+            backOneMove() {
+                const store = Alpine.store('game');
+                store.backOneMove();
+            }
+        }));
+    });
+</script>
