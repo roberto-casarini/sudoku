@@ -2,95 +2,201 @@
 
 namespace App\Livewire;
 
+use App\Classes\SudokuBL;
+use App\Classes\SudokuDTO;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 
+/**
+ * Component for managing game state transitions (setup, play, pause, reset).
+ * 
+ * Provides controls for changing the game state and integrates with
+ * SudokuBL to persist state changes.
+ */
 class SetupBoard extends Component
 {
-    const BEGINNING_STATE = 'beginning';
-    const SETUP_STATE = 'setup';
-    const PLAYING_STATE = 'playing';
-    const PAUSED_STATE = 'paused';
-    const END_STATE = 'end';
+    /** @var SudokuBL The game business logic instance */
+    public SudokuBL $game;
 
-    public $startStopText = "Start";
-
-    public $currentState = self::BEGINNING_STATE;
-
-    public function setup()
+    /**
+     * Initialize the component with the game instance.
+     * 
+     * @param SudokuBL $game The game business logic instance
+     * @return void
+     */
+    public function mount(SudokuBL $game): void
     {
-        $this->setCurrentState(self::SETUP_STATE);
+        $this->game = $game;
     }
 
-    public function play()
+    /**
+     * Get the current game state.
+     * 
+     * @return string The current game state
+     */
+    #[Computed]
+    public function currentState(): string
     {
-        $this->setCurrentState(self::PLAYING_STATE);
+        return $this->game->getStatus();
     }
 
-    public function pause()
+    /**
+     * Set game state to setup mode.
+     * 
+     * @return void
+     */
+    public function setup(): void
     {
-        if ($this->currentState == self::PAUSED_STATE) { 
-            $this->setCurrentState(self::PLAYING_STATE);
-        } else {
-            $this->setCurrentState(self::PAUSED_STATE);
-        }
+        $this->setCurrentState(SudokuDTO::SETUP_STATE);
     }
 
-    public function restart()
+    /**
+     * Set game state to playing mode.
+     * 
+     * @return void
+     */
+    public function play(): void
     {
-        $this->setCurrentState(self::PLAYING_STATE);
+        $this->setCurrentState(SudokuDTO::PLAYING_STATE);
     }
 
-    public function stop()
+    /**
+     * Toggle between playing and paused states.
+     * 
+     * @return void
+     */
+    public function pause(): void
     {
-        $this->setCurrentState(self::END_STATE);
+        $state = $this->currentState === SudokuDTO::PAUSED_STATE
+            ? SudokuDTO::PLAYING_STATE
+            : SudokuDTO::PAUSED_STATE;
+
+        $this->setCurrentState($state);
     }
 
-    public function resetGame()
+    /**
+     * Restart the game (set to playing state).
+     * 
+     * @return void
+     */
+    public function restart(): void
     {
-        $this->setCurrentState(self::BEGINNING_STATE);
+        $this->setCurrentState(SudokuDTO::PLAYING_STATE);
     }
 
-    private function setCurrentState($state)
+    /**
+     * Stop the game (set to end state).
+     * 
+     * @return void
+     */
+    public function stop(): void
     {
-        $this->currentState = $state;
+        $this->setCurrentState(SudokuDTO::END_STATE);
+    }
+
+    /**
+     * Reset the game to beginning state.
+     * 
+     * @return void
+     */
+    public function resetGame(): void
+    {
+        $this->game->reset();
+        $this->setCurrentState(SudokuDTO::BEGINNING_STATE);
+    }
+
+    /**
+     * Set the current game state and dispatch event.
+     * 
+     * @param string $state The new game state
+     * @return void
+     */
+    private function setCurrentState(string $state): void
+    {
+        $this->game->setStatus($state);
         $this->dispatch('set_gaming_state', state: $state);
     }
 
+    /**
+     * Check if setup button is disabled.
+     * 
+     * @return bool True if disabled
+     */
+    #[Computed]
+    public function isSetupDisabled(): bool
+    {
+        return $this->currentState !== SudokuDTO::BEGINNING_STATE;
+    }
+
+    /**
+     * Check if start/play button is disabled.
+     * 
+     * @return bool True if disabled
+     */
+    #[Computed]
+    public function isStartDisabled(): bool
+    {
+        return $this->currentState !== SudokuDTO::SETUP_STATE;
+    }
+
+    /**
+     * Check if stop button is disabled.
+     * 
+     * @return bool True if disabled
+     */
+    #[Computed]
+    public function isStopDisabled(): bool
+    {
+        return in_array($this->currentState, [
+            SudokuDTO::BEGINNING_STATE,
+            SudokuDTO::SETUP_STATE,
+            SudokuDTO::END_STATE
+        ], true);
+    }
+
+    /**
+     * Check if pause button is disabled.
+     * 
+     * @return bool True if disabled
+     */
+    #[Computed]
+    public function isPauseDisabled(): bool
+    {
+        return !in_array($this->currentState, [
+            SudokuDTO::PLAYING_STATE,
+            SudokuDTO::PAUSED_STATE
+        ], true);
+    }
+
+    /**
+     * Check if reset button is disabled.
+     * 
+     * @return bool True if disabled
+     */
+    #[Computed]
+    public function isResetDisabled(): bool
+    {
+        return $this->currentState !== SudokuDTO::END_STATE;
+    }
+
+    /**
+     * Get the text for the pause/restart button.
+     * 
+     * @return string The button text
+     */
+    #[Computed]
+    public function pauseButtonText(): string
+    {
+        return $this->currentState === SudokuDTO::PAUSED_STATE ? "Restart" : "Pause";
+    }
+
+    /**
+     * Render the component view.
+     * 
+     * @return \Illuminate\Contracts\View\View
+     */
     public function render()
     {
         return view('livewire.setup-board');
-    }
-
-    public function isSetupDisabled() 
-    {
-        return $this->currentState != self::BEGINNING_STATE;
-    }
-
-        
-    public function isStartDisabled() 
-    {
-        return $this->currentState != self::SETUP_STATE;
-    }
-
-    public function isStopDisabled() 
-    {
-        return in_array($this->currentState, [self::BEGINNING_STATE, self::SETUP_STATE, self::END_STATE]);
-    }
-        
-    public function isPauseDisabled() 
-    {
-        return !in_array($this->currentState, [self::PLAYING_STATE, self::PAUSED_STATE]);
-    }
-        
-    public function isResetDisabled() 
-    {
-        return $this->currentState != self::END_STATE;
-    }
-
-    #[Computed]
-    public function pauseButtonText()
-    {
-        return ($this->currentState == self::PAUSED_STATE) ? "Restart" : "Pause";
     }
 }

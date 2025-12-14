@@ -2,226 +2,349 @@
 
 namespace App\Livewire;
 
-use Exception;
+use App\Classes\SudokuBL;
+use App\Classes\SudokuCell;
+use App\Classes\SudokuDTO;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Log;
 
+/**
+ * Component representing a single cell in the Sudoku board.
+ * 
+ * Displays and manages interaction with individual Sudoku cells,
+ * integrating with SudokuBL for state management.
+ */
 class SingleCell extends Component
 {
-    public array $possibilities = [];
+    /** @var SudokuBL The game business logic instance */
+    public SudokuBL $game;
 
-    public $cell = '';
+    /** @var string The cell coordinate (e.g., "A-1") */
+    public string $coord;
 
-    public $cellValue = '';
+    /** @var bool Whether this cell is currently in edit mode */
+    public bool $edit = false;
 
-    public array $borders = [];
+    /** @var array<string> Border positions for visual styling */
+    private array $borders = [];
 
-    public $edit = false;
-
-    public $disabled = true;
-
-    public $settingMode = false;
-
-    public function mount($cell)
+    /**
+     * Initialize the component with game instance and cell coordinate.
+     * 
+     * @param SudokuBL $game The game business logic instance
+     * @param string $coord The cell coordinate (e.g., "A-1")
+     * @return void
+     */
+    public function mount(SudokuBL $game, string $coord): void
     {
-        if (empty($cell)) {
-            throw new Exception('Invalid Cell');
-        }
-
-        $this->cell = $cell;
+        $this->game = $game;
+        $this->coord = $coord;
         $this->setBorders();
     }
 
-    public function hasBorder($value) 
-    {
-        return in_array($value, $this->borders);
-    }
-
-    public function selectCell() 
-    {
-        if (!$this->disabled) {
-            $this->dispatch('cell_selected', cell: $this->cell, cellValue: $this->cellValue, possibilities: $this->possibilities);
-            $this->edit = true;
-        }
-    }
-
-    public function hasPossibility($value): bool
-    {
-        return in_array((int) $value, $this->possibilities);
-    }
-
-    public function isPopulated($cell) {
-        if ($cell == $this->cell) {
-            return (($this->cellValue != '') || (count($this->possibilities) > 0)); 
-        }
-        return true;
-    }
-
-    public function render()
-    {
-        return view('livewire.single-cell');
-    }
-
+    /**
+     * Get the cell instance from the game board.
+     * 
+     * @return SudokuCell|null The cell instance, or null if not found
+     */
     #[Computed]
-    public function getXCoord() 
+    public function cell(): ?SudokuCell
     {
-        return strlen($this->cell) == 2 ? substr($this->cell, 0, 1) : '';
-    }
-        
-    #[Computed]
-    public function getYCoord() 
-    {
-        return strlen($this->cell) == 2 ? substr($this->cell, 1, 1) : '';
+        [$x, $y] = explode('-', $this->coord);
+        return $this->game->getBoard()->findCell($x, $y);
     }
 
+    /**
+     * Get the cell value.
+     * 
+     * @return int|null The cell value, or null if empty
+     */
     #[Computed]
-    public function showXLabel() 
+    public function cellValue(): ?int
     {
-        return $this->getYCoord() == '1';
+        return $this->cell()?->value;
     }
 
+    /**
+     * Get the cell possibilities.
+     * 
+     * @return array<int> Array of possible values
+     */
     #[Computed]
-    public function showYLabel() 
+    public function possibilities(): array
     {
-        return $this->getXCoord() == 'A';
+        return $this->cell()?->possibilities ?? [];
     }
 
+    /**
+     * Check if the cell should show possibilities instead of value.
+     * 
+     * @return bool True if possibilities should be shown
+     */
     #[Computed]
-    public function getXOffset() 
-    {
-        $res = 0;
-        switch($this->getXCoord()) {
-            case 'B':
-                $res = 1;
-                break;
-            case 'C':
-                $res = 2;
-                break;
-            case 'D': 
-                $res = 3;
-                break;
-            case 'E': 
-                $res = 4;
-                break;
-            case 'F': 
-                $res = 5;
-                break;
-            case 'G': 
-                $res = 6;
-                break;
-            case 'H': 
-                $res = 7;
-                break;
-            case 'I': 
-                $res = 8;
-                break;
-            default: 
-                $res = 0;
-                break;
-        };
-        return "left: -" . $res . "px;";
-    }
-
-    #[Computed]
-    public function getYOffset() 
-    {
-        return "top: -" . ($this->getYCoord()) - 1 . "px;";
-    }
-
-    #[Computed]
-    public function getOffset() 
-    {
-        return $this->getYOffset() . ' ' . $this->getXOffset();
-    }
-
-    #[Computed]
-    public function showPossibilities()
+    public function showPossibilities(): bool
     {
         return count($this->possibilities) > 0;
     }
 
+    /**
+     * Check if the cell is disabled based on game state.
+     * 
+     * @return bool True if disabled
+     */
     #[Computed]
-    public function cellToText()
+    public function disabled(): bool
     {
-        return $this->cell;
+        $status = $this->game->getStatus();
+        return in_array($status, [SudokuDTO::BEGINNING_STATE, SudokuDTO::END_STATE], true);
     }
 
-    #[On('cell_selected')]
-    public function unselectCell($cell) 
+    /**
+     * Check if the cell is in setup mode.
+     * 
+     * @return bool True if in setup mode
+     */
+    #[Computed]
+    public function settingMode(): bool
     {
-        if ($cell != $this->cell) {
+        return $this->game->getStatus() === SudokuDTO::SETUP_STATE;
+    }
+
+    /**
+     * Check if the cell has a border at the specified position.
+     * 
+     * @param string $value The border position (left, right, top, bottom)
+     * @return bool True if the border exists
+     */
+    public function hasBorder(string $value): bool
+    {
+        return in_array($value, $this->borders, true);
+    }
+
+    /**
+     * Handle cell selection.
+     * 
+     * Dispatches an event when the cell is clicked and enabled.
+     * 
+     * @return void
+     */
+    public function selectCell(): void
+    {
+        if (!$this->disabled) {
+            $this->edit = true;
+            $this->dispatch('cell_selected', cell: $this->coord);
+        }
+    }
+
+    /**
+     * Check if a specific possibility value exists in the cell.
+     * 
+     * @param int $value The value to check
+     * @return bool True if the possibility exists
+     */
+    public function hasPossibility(int $value): bool
+    {
+        return in_array($value, $this->possibilities, true);
+    }
+
+    /**
+     * Get the X coordinate (column letter).
+     * 
+     * @return string The X coordinate (A-I)
+     */
+    #[Computed]
+    public function xCoordinate(): string
+    {
+        [$x] = explode('-', $this->coord);
+        return $x;
+    }
+
+    /**
+     * Get the Y coordinate (row number).
+     * 
+     * @return string The Y coordinate (1-9)
+     */
+    #[Computed]
+    public function yCoordinate(): string
+    {
+        [, $y] = explode('-', $this->coord);
+        return $y;
+    }
+
+    /**
+     * Check if X label should be shown (first row).
+     * 
+     * @return bool True if label should be shown
+     */
+    #[Computed]
+    public function showXLabel(): bool
+    {
+        return $this->yCoordinate === '1';
+    }
+
+    /**
+     * Check if Y label should be shown (first column).
+     * 
+     * @return bool True if label should be shown
+     */
+    #[Computed]
+    public function showYLabel(): bool
+    {
+        return $this->xCoordinate === 'A';
+    }
+
+    /**
+     * Get X offset for positioning.
+     * 
+     * @return string CSS style for X offset
+     */
+    #[Computed]
+    public function xOffset(): string
+    {
+        $offset = match($this->xCoordinate) {
+            'B' => 1,
+            'C' => 2,
+            'D' => 3,
+            'E' => 4,
+            'F' => 5,
+            'G' => 6,
+            'H' => 7,
+            'I' => 8,
+            default => 0,
+        };
+        
+        return "left: -{$offset}px;";
+    }
+
+    /**
+     * Get Y offset for positioning.
+     * 
+     * @return string CSS style for Y offset
+     */
+    #[Computed]
+    public function yOffset(): string
+    {
+        $offset = (int)$this->yCoordinate - 1;
+        return "top: -{$offset}px;";
+    }
+
+    /**
+     * Get combined offset for positioning.
+     * 
+     * @return string CSS style for combined offset
+     */
+    #[Computed]
+    public function offset(): string
+    {
+        return $this->yOffset . ' ' . $this->xOffset;
+    }
+
+    /**
+     * Handle unselection when another cell is selected.
+     * 
+     * @param string $cell The coordinate of the newly selected cell
+     * @return void
+     */
+    #[On('cell_selected')]
+    public function unselectCell(string $cell): void
+    {
+        if ($cell !== $this->coord) {
             $this->edit = false;
         }
     }
 
+    /**
+     * Handle game state changes.
+     * 
+     * Updates edit state based on game state transitions.
+     * 
+     * @param string $state The new game state
+     * @return void
+     */
     #[On('set_gaming_state')]
-    public function setGamingState($state)
+    public function setGamingState(string $state): void
     {
-        switch($state) {
-            case 'beginning':
-                $this->possibilities = [];
-                $this->cellValue = '';
-                $this->edit = false;
-                $this->disabled = true;
-                $this->settingMode = false;
-                break;
-            case 'setup':
-                $this->disabled = false;
-                $this->settingMode = true;
-                break;
-            case 'playing':
-                $this->disabled = false;
-                if ($this->cellValue == '') {
-                    $this->settingMode = false;
-                }
-                $this->edit = false;
-                break;
-            case 'end':
-                $this->edit = false;
-                $this->disabled = true;
-                break;
+        if ($state === SudokuDTO::PLAYING_STATE) {
+            $this->edit = false;
+        } elseif (in_array($state, [SudokuDTO::BEGINNING_STATE, SudokuDTO::END_STATE], true)) {
+            $this->edit = false;
         }
     }
 
+    /**
+     * Set cell values using business logic.
+     * 
+     * This method is called when values are set from the SelectNumber component.
+     * 
+     * @param string $cell The cell coordinate
+     * @param array<int> $values The values to set
+     * @param bool $showPossibilities Whether setting possibilities or value
+     * @return void
+     */
     #[On('set_cell_values')]
-    public function setCellValues($cell, $values, $showPossibilities)
+    public function setCellValues(string $cell, array $values, bool $showPossibilities): void
     {
-        if ($cell == $this->cellToText()) {
-            if (!$showPossibilities) {
-                $this->possibilities = [];
-                $value = (count($values) > 0) ? $values[0] : '';
-                $this->cellValue = ($this->cellValue != $value) ? $value : ''; 
-            } else {
-                $this->cellValue = '';
-                $this->possibilities = $values;
+        if ($cell !== $this->coord) {
+            return;
+        }
+
+        [$x, $y] = explode('-', $cell);
+
+        if ($showPossibilities) {
+            // Toggle possibilities for each value
+            foreach ($values as $value) {
+                $this->game->setCellValue($x, $y, (int)$value, true);
             }
+        } else {
+            // Set cell value (toggles if same value)
+            $value = count($values) > 0 ? (int)$values[0] : null;
+            $currentCell = $this->game->getBoard()->findCell($x, $y);
+            $newValue = ($currentCell && $currentCell->value === $value) ? null : $value;
+            $this->game->setCellValue($x, $y, $newValue, false);
+        }
+
+        $this->edit = false;
+    }
+
+    /**
+     * Initialize borders based on cell position.
+     * 
+     * @return void
+     */
+    private function setBorders(): void
+    {
+        $x = $this->xCoordinate;
+        $y = $this->yCoordinate;
+
+        // Left border (first column)
+        if ($x === 'A') {
+            $this->borders[] = 'left';
+        }
+
+        // Right borders (sector boundaries)
+        if (in_array($x, ['C', 'F', 'I'], true)) {
+            $this->borders[] = 'right';
+        }
+
+        // Top border (first row)
+        if ($y === '1') {
+            $this->borders[] = 'top';
+        }
+
+        // Bottom borders (sector boundaries)
+        if (in_array($y, ['3', '6', '9'], true)) {
+            $this->borders[] = 'bottom';
         }
     }
 
-    private function setBorders() 
+    /**
+     * Render the component view.
+     * 
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function render()
     {
-        switch ($this->getXCoord()) {
-            case 'A':
-                $this->borders[] = 'left';
-                break;
-            case 'C':
-            case 'F':
-            case 'I':
-                $this->borders[] = 'right';
-                break;
-        }
-
-        switch ($this->getYCoord()) {
-            case '1':
-                $this->borders[] = 'top';
-                break;
-            case '3':
-            case '6':
-            case '9':
-                $this->borders[] = 'bottom';
-                break;
-        }
+        return view('livewire.single-cell');
     }
 }

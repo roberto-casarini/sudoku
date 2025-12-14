@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Classes\Persistence\PersistenceInterface;
+use App\Classes\Persistence\PersistenceSession;
+use App\Classes\SudokuBL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +14,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Bind persistence interface
+        $this->app->singleton(PersistenceInterface::class, PersistenceSession::class);
+        
+        // Bind SudokuBL as singleton (shares state across requests)
+        $this->app->singleton(SudokuBL::class, function ($app) {
+            return new SudokuBL($app->make(PersistenceInterface::class));
+        });    
     }
 
     /**
