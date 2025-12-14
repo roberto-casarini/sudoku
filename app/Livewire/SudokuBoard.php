@@ -15,8 +15,8 @@ use Livewire\Attributes\Computed;
  */
 class SudokuBoard extends Component
 {
-    /** @var SudokuBL The game business logic instance */
-    protected SudokuBL $game;
+    /** @var SudokuBL|null The game business logic instance */
+    protected ?SudokuBL $game = null;
 
     /**
      * Initialize the component with the game instance.
@@ -30,6 +30,19 @@ class SudokuBoard extends Component
     }
 
     /**
+     * Get the game instance, initializing it if needed.
+     * 
+     * @return SudokuBL The game business logic instance
+     */
+    protected function getGame(): SudokuBL
+    {
+        if ($this->game === null) {
+            $this->game = app(SudokuBL::class);
+        }
+        return $this->game;
+    }
+
+    /**
      * Get all cells from the game board.
      * 
      * @return array<SudokuCell> Array of all cells in the board
@@ -37,7 +50,7 @@ class SudokuBoard extends Component
     #[Computed]
     public function cells(): array
     {
-        return $this->game->getBoard()->getAllCells();
+        return $this->getGame()->getBoard()->getAllCells();
     }
 
     /**
@@ -47,9 +60,6 @@ class SudokuBoard extends Component
      */
     public function render()
     {
-        // #region agent log
-        file_put_contents('/home/roberto/Scrivania/Sudoku/.cursor/debug.log', json_encode(['sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'C','location'=>'SudokuBoard.php:48','message'=>'render() entry','data'=>['gameType'=>get_class($this->game),'cellsCount'=>count($this->cells)]], JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
-        // #endregion
         return view('livewire.sudoku-board', [
             'cells' => $this->cells,
         ]);

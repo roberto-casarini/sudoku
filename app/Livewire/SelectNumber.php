@@ -19,8 +19,8 @@ class SelectNumber extends Component
 {
     use FlashMessageTrait;
 
-    /** @var SudokuBL The game business logic instance */
-    protected SudokuBL $game;
+    /** @var SudokuBL|null The game business logic instance */
+    protected ?SudokuBL $game = null;
 
     /** @var string The currently selected cell coordinate (e.g., "A-1") */
     public string $cell = '';
@@ -40,6 +40,19 @@ class SelectNumber extends Component
     public function mount(SudokuBL $game): void
     {
         $this->game = $game;
+    }
+
+    /**
+     * Get the game instance, initializing it if needed.
+     * 
+     * @return SudokuBL The game business logic instance
+     */
+    protected function getGame(): SudokuBL
+    {
+        if ($this->game === null) {
+            $this->game = app(SudokuBL::class);
+        }
+        return $this->game;
     }
 
     /**
@@ -63,17 +76,17 @@ class SelectNumber extends Component
 
         if ($this->showPossibilities) {
             // Toggle possibility using business logic
-            $this->game->setCellValue($x, $y, $value, true);
+            $this->getGame()->setCellValue($x, $y, $value, true);
         } else {
             // Set cell value using business logic
             // Toggle if same value (get current value first)
-            $currentCell = $this->game->getBoard()->findCell($x, $y);
+            $currentCell = $this->getGame()->getBoard()->findCell($x, $y);
             $newValue = ($currentCell && $currentCell->value === $value) ? null : $value;
-            $this->game->setCellValue($x, $y, $newValue, false);
+            $this->getGame()->setCellValue($x, $y, $newValue, false);
         }
 
         // Update UI state from business logic
-        $cellObj = $this->game->getBoard()->findCell($x, $y);
+        $cellObj = $this->getGame()->getBoard()->findCell($x, $y);
         if ($cellObj) {
             if ($this->showPossibilities) {
                 $this->selectedValues = $cellObj->possibilities;
@@ -81,6 +94,9 @@ class SelectNumber extends Component
                 $this->selectedValues = $cellObj->value !== null ? [$cellObj->value] : [];
             }
         }
+
+        // Dispatch event to refresh the cell component
+        $this->dispatch('cell_updated', cell: $this->cell);
     }
 
     /**
@@ -126,7 +142,7 @@ class SelectNumber extends Component
     #[Computed]
     public function disabled(): bool
     {
-        $status = $this->game->getStatus();
+        $status = $this->getGame()->getStatus();
         return in_array($status, [SudokuDTO::BEGINNING_STATE, SudokuDTO::END_STATE], true);
     }
 
@@ -138,7 +154,7 @@ class SelectNumber extends Component
     #[Computed]
     public function disabledPossibilities(): bool
     {
-        $status = $this->game->getStatus();
+        $status = $this->getGame()->getStatus();
         return $status === SudokuDTO::BEGINNING_STATE 
             || $status === SudokuDTO::SETUP_STATE 
             || $status === SudokuDTO::END_STATE;
@@ -161,7 +177,7 @@ class SelectNumber extends Component
         // Update selected values from the actual cell state in business logic
         if ($cell !== '') {
             [$x, $y] = explode('-', $cell);
-            $cellObj = $this->game->getBoard()->findCell($x, $y);
+            $cellObj = $this->getGame()->getBoard()->findCell($x, $y);
             
             if ($cellObj) {
                 if (count($cellObj->possibilities) > 0) {

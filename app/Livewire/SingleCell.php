@@ -17,8 +17,8 @@ use Livewire\Attributes\On;
  */
 class SingleCell extends Component
 {
-    /** @var SudokuBL The game business logic instance */
-    protected SudokuBL $game;
+    /** @var SudokuBL|null The game business logic instance */
+    protected ?SudokuBL $game = null;
 
     /** @var string The cell coordinate (e.g., "A-1") */
     public string $coord;
@@ -26,8 +26,8 @@ class SingleCell extends Component
     /** @var bool Whether this cell is currently in edit mode */
     public bool $edit = false;
 
-    /** @var array<string> Border positions for visual styling */
-    private array $borders = [];
+    /** @var array<string>|null Border positions for visual styling (cached) */
+    private ?array $borders = null;
 
     /**
      * Initialize the component with game instance and cell coordinate.
@@ -38,18 +38,22 @@ class SingleCell extends Component
      */
     public function mount(SudokuBL $game, string $coord): void
     {
-        // #region agent log
-        file_put_contents('/home/roberto/Scrivania/Sudoku/.cursor/debug.log', json_encode(['sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A','location'=>'SingleCell.php:39','message'=>'mount() entry','data'=>['coord'=>$coord,'gameType'=>get_class($game)]], JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
-        // #endregion
         $this->game = $game;
-        // #region agent log
-        file_put_contents('/home/roberto/Scrivania/Sudoku/.cursor/debug.log', json_encode(['sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A','location'=>'SingleCell.php:42','message'=>'game property assigned','data'=>['gameClass'=>get_class($this->game)]], JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
-        // #endregion
         $this->coord = $coord;
         $this->setBorders();
-        // #region agent log
-        file_put_contents('/home/roberto/Scrivania/Sudoku/.cursor/debug.log', json_encode(['sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B','location'=>'SingleCell.php:45','message'=>'mount() exit','data'=>['bordersCount'=>count($this->borders),'borders'=>$this->borders]], JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
-        // #endregion
+    }
+
+    /**
+     * Get the game instance, initializing it if needed.
+     * 
+     * @return SudokuBL The game business logic instance
+     */
+    protected function getGame(): SudokuBL
+    {
+        if ($this->game === null) {
+            $this->game = app(SudokuBL::class);
+        }
+        return $this->game;
     }
 
     /**
@@ -61,7 +65,7 @@ class SingleCell extends Component
     public function cell(): ?SudokuCell
     {
         [$x, $y] = explode('-', $this->coord);
-        return $this->game->getBoard()->findCell($x, $y);
+        return $this->getGame()->getBoard()->findCell($x, $y);
     }
 
     /**
@@ -105,7 +109,7 @@ class SingleCell extends Component
     #[Computed]
     public function disabled(): bool
     {
-        $status = $this->game->getStatus();
+        $status = $this->getGame()->getStatus();
         return in_array($status, [SudokuDTO::BEGINNING_STATE, SudokuDTO::END_STATE], true);
     }
 
@@ -117,7 +121,20 @@ class SingleCell extends Component
     #[Computed]
     public function settingMode(): bool
     {
-        return $this->game->getStatus() === SudokuDTO::SETUP_STATE;
+        return $this->getGame()->getStatus() === SudokuDTO::SETUP_STATE;
+    }
+
+    /**
+     * Get the borders array, initializing it if needed.
+     * 
+     * @return array<string> Border positions for visual styling
+     */
+    private function getBorders(): array
+    {
+        if ($this->borders === null && isset($this->coord)) {
+            $this->setBorders();
+        }
+        return $this->borders ?? [];
     }
 
     /**
@@ -128,7 +145,7 @@ class SingleCell extends Component
      */
     public function hasBorder(string $value): bool
     {
-        return in_array($value, $this->borders, true);
+        return in_array($value, $this->getBorders(), true);
     }
 
     /**
@@ -264,6 +281,28 @@ class SingleCell extends Component
     }
 
     /**
+     * Handle cell update event to refresh the component.
+     * 
+     * When a cell value is updated, this event is dispatched to force
+     * the component to re-render and re-evaluate computed properties.
+     * 
+     * @param string $cell The coordinate of the updated cell
+     * @return void
+     */
+    #[On('cell_updated')]
+    public function refreshCell(string $cell): void
+    {
+        // When this cell is updated, force Livewire to re-render
+        // by resetting a property that will cause computed properties to re-evaluate
+        if ($cell === $this->coord) {
+            // Reset borders cache to force re-evaluation of all computed properties
+            $this->borders = null;
+            // The event listener being called will trigger a re-render
+            // and all computed properties will be re-evaluated with fresh game state
+        }
+    }
+
+    /**
      * Handle game state changes.
      * 
      * Updates edit state based on game state transitions.
@@ -303,14 +342,14 @@ class SingleCell extends Component
         if ($showPossibilities) {
             // Toggle possibilities for each value
             foreach ($values as $value) {
-                $this->game->setCellValue($x, $y, (int)$value, true);
+                $this->getGame()->setCellValue($x, $y, (int)$value, true);
             }
         } else {
             // Set cell value (toggles if same value)
             $value = count($values) > 0 ? (int)$values[0] : null;
-            $currentCell = $this->game->getBoard()->findCell($x, $y);
+            $currentCell = $this->getGame()->getBoard()->findCell($x, $y);
             $newValue = ($currentCell && $currentCell->value === $value) ? null : $value;
-            $this->game->setCellValue($x, $y, $newValue, false);
+            $this->getGame()->setCellValue($x, $y, $newValue, false);
         }
 
         $this->edit = false;
@@ -323,6 +362,7 @@ class SingleCell extends Component
      */
     private function setBorders(): void
     {
+        $this->borders = [];
         $x = $this->xCoordinate;
         $y = $this->yCoordinate;
 

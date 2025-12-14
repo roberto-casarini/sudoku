@@ -2,7 +2,7 @@
     @if($this->showXLabel)
         <div 
             class="absolute -top-7 w-12 text-center text-xl text-gray-700"
-            style="{{ $this->xOffset }}"
+            @if(trim($this->xOffset)) style="{{ $this->xOffset }}" @endif
         >
             {{ $this->xCoordinate }}
         </div>
@@ -11,7 +11,7 @@
      @if($this->showYLabel)
         <div 
             class="absolute h-12 -left-5 my-3 text-xl text-gray-700"
-            style="{{ $this->yOffset }}"
+            @if(trim($this->yOffset)) style="{{ $this->yOffset }}" @endif
         >
             {{ $this->yCoordinate }}
         </div>
@@ -32,7 +32,7 @@
         'bg-yellow-300' => $this->edit
     ])
     wire:click="selectCell"
-    style="{{ $this->offset }}"
+    @if(trim($this->offset)) style="{{ $this->offset }}" @endif
     >
         @if($this->showPossibilities)
             <div class="h-full w-full text-xs text-center grid grid-cols-3">

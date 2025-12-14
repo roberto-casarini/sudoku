@@ -15,8 +15,8 @@ use Livewire\Attributes\Computed;
  */
 class SetupBoard extends Component
 {
-    /** @var SudokuBL The game business logic instance */
-    protected SudokuBL $game;
+    /** @var SudokuBL|null The game business logic instance */
+    protected ?SudokuBL $game = null;
 
     /**
      * Initialize the component with the game instance.
@@ -30,6 +30,19 @@ class SetupBoard extends Component
     }
 
     /**
+     * Get the game instance, initializing it if needed.
+     * 
+     * @return SudokuBL The game business logic instance
+     */
+    protected function getGame(): SudokuBL
+    {
+        if ($this->game === null) {
+            $this->game = app(SudokuBL::class);
+        }
+        return $this->game;
+    }
+
+    /**
      * Get the current game state.
      * 
      * @return string The current game state
@@ -37,7 +50,7 @@ class SetupBoard extends Component
     #[Computed]
     public function currentState(): string
     {
-        return $this->game->getStatus();
+        return $this->getGame()->getStatus();
     }
 
     /**
@@ -101,7 +114,7 @@ class SetupBoard extends Component
      */
     public function resetGame(): void
     {
-        $this->game->reset();
+        $this->getGame()->reset();
         $this->setCurrentState(SudokuDTO::BEGINNING_STATE);
     }
 
@@ -113,7 +126,7 @@ class SetupBoard extends Component
      */
     private function setCurrentState(string $state): void
     {
-        $this->game->setStatus($state);
+        $this->getGame()->setStatus($state);
         $this->dispatch('set_gaming_state', state: $state);
     }
 
