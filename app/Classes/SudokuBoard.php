@@ -24,7 +24,7 @@ class SudokuBoard
     {
         foreach(range(1, 9) as $y) {
             foreach(range(1, 9) as $x) {
-                $this->cells[] = new SudokuCell(toLetter($x), $y);
+                $this->cells[] = new SudokuCell(\toLetter($x), $y);
             }
         }
     }

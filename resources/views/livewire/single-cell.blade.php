@@ -1,19 +1,19 @@
 <div class="relative size-fit">
-    @if($this->showXLabel())
+    @if($this->showXLabel)
         <div 
             class="absolute -top-7 w-12 text-center text-xl text-gray-700"
-            @style="getXOffset"
+            style="{{ $this->xOffset }}"
         >
-            {{ $this->getXCoord() }}
+            {{ $this->xCoordinate }}
         </div>
     @endif
 
-     @if($this->showYLabel())
+     @if($this->showYLabel)
         <div 
             class="absolute h-12 -left-5 my-3 text-xl text-gray-700"
-            @style="getYOffset"
+            style="{{ $this->yOffset }}"
         >
-            {{ $this->getYCoord() }}
+            {{ $this->yCoordinate }}
         </div>
     @endif
 
@@ -32,9 +32,9 @@
         'bg-yellow-300' => $this->edit
     ])
     wire:click="selectCell"
-    @style="getOffset();"
+    style="{{ $this->offset }}"
     >
-        @if($this->showPossibilities())
+        @if($this->showPossibilities)
             <div class="h-full w-full text-xs text-center grid grid-cols-3">
                 @foreach (range(1, 9) as $i)
                     <div @class([
@@ -50,7 +50,7 @@
                     'text-4xl text-center my-1',
                     'text-red-600' => !$this->settingMode
                 ])>
-                {{ $cellValue }}
+                {{ $this->cellValue ?? '' }}
             </div>
         @endif
     </div>

@@ -18,7 +18,7 @@ use Livewire\Attributes\On;
 class SingleCell extends Component
 {
     /** @var SudokuBL The game business logic instance */
-    public SudokuBL $game;
+    protected SudokuBL $game;
 
     /** @var string The cell coordinate (e.g., "A-1") */
     public string $coord;
@@ -38,9 +38,18 @@ class SingleCell extends Component
      */
     public function mount(SudokuBL $game, string $coord): void
     {
+        // #region agent log
+        file_put_contents('/home/roberto/Scrivania/Sudoku/.cursor/debug.log', json_encode(['sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A','location'=>'SingleCell.php:39','message'=>'mount() entry','data'=>['coord'=>$coord,'gameType'=>get_class($game)]], JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
+        // #endregion
         $this->game = $game;
+        // #region agent log
+        file_put_contents('/home/roberto/Scrivania/Sudoku/.cursor/debug.log', json_encode(['sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A','location'=>'SingleCell.php:42','message'=>'game property assigned','data'=>['gameClass'=>get_class($this->game)]], JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
+        // #endregion
         $this->coord = $coord;
         $this->setBorders();
+        // #region agent log
+        file_put_contents('/home/roberto/Scrivania/Sudoku/.cursor/debug.log', json_encode(['sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B','location'=>'SingleCell.php:45','message'=>'mount() exit','data'=>['bordersCount'=>count($this->borders),'borders'=>$this->borders]], JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
+        // #endregion
     }
 
     /**

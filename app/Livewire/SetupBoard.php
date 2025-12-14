@@ -16,7 +16,7 @@ use Livewire\Attributes\Computed;
 class SetupBoard extends Component
 {
     /** @var SudokuBL The game business logic instance */
-    public SudokuBL $game;
+    protected SudokuBL $game;
 
     /**
      * Initialize the component with the game instance.

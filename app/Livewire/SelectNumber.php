@@ -20,7 +20,7 @@ class SelectNumber extends Component
     use FlashMessageTrait;
 
     /** @var SudokuBL The game business logic instance */
-    public SudokuBL $game;
+    protected SudokuBL $game;
 
     /** @var string The currently selected cell coordinate (e.g., "A-1") */
     public string $cell = '';
@@ -40,7 +40,6 @@ class SelectNumber extends Component
     public function mount(SudokuBL $game): void
     {
         $this->game = $game;
-        $this->updateDisabledState();
     }
 
     /**

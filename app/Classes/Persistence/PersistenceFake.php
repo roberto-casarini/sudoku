@@ -12,7 +12,7 @@ use App\Classes\SudokuDTO;
  * you don't want to interact with actual storage mechanisms.
  */
 class PersistenceFake implements PersistenceInterface
-{
+{    
     /**
      * Load a new game instance (no actual persistence).
      * 

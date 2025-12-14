@@ -16,7 +16,7 @@ use Livewire\Attributes\Computed;
 class SudokuBoard extends Component
 {
     /** @var SudokuBL The game business logic instance */
-    public SudokuBL $game;
+    protected SudokuBL $game;
 
     /**
      * Initialize the component with the game instance.
@@ -47,6 +47,9 @@ class SudokuBoard extends Component
      */
     public function render()
     {
+        // #region agent log
+        file_put_contents('/home/roberto/Scrivania/Sudoku/.cursor/debug.log', json_encode(['sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'C','location'=>'SudokuBoard.php:48','message'=>'render() entry','data'=>['gameType'=>get_class($this->game),'cellsCount'=>count($this->cells)]], JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
+        // #endregion
         return view('livewire.sudoku-board', [
             'cells' => $this->cells,
         ]);
