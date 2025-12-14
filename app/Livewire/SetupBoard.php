@@ -98,13 +98,27 @@ class SetupBoard extends Component
     }
 
     /**
-     * Stop the game (set to end state).
+     * Finish the game (set to end state).
      * 
      * @return void
      */
-    public function stop(): void
+    public function finish(): void
     {
         $this->setCurrentState(SudokuDTO::END_STATE);
+    }
+
+    /**
+     * Undo the last move.
+     * 
+     * @return void
+     */
+    public function backOneMove(): void
+    {
+        $result = $this->getGame()->back();
+        if ($result !== null) {
+            // Dispatch event to refresh all cells
+            $this->dispatch('cell_updated', cell: $result['xCoordinate'] . '-' . $result['yCoordinate']);
+        }
     }
 
     /**
@@ -153,18 +167,39 @@ class SetupBoard extends Component
     }
 
     /**
-     * Check if stop button is disabled.
+     * Check if finish button is disabled.
      * 
      * @return bool True if disabled
      */
     #[Computed]
-    public function isStopDisabled(): bool
+    public function isFinishDisabled(): bool
     {
         return in_array($this->currentState, [
             SudokuDTO::BEGINNING_STATE,
             SudokuDTO::SETUP_STATE,
             SudokuDTO::END_STATE
         ], true);
+    }
+
+    /**
+     * Check if back one move button is disabled.
+     * 
+     * @return bool True if disabled
+     */
+    #[Computed]
+    public function isBackDisabled(): bool
+    {
+        // Only available during playing or paused states
+        if (!in_array($this->currentState, [
+            SudokuDTO::PLAYING_STATE,
+            SudokuDTO::PAUSED_STATE
+        ], true)) {
+            return true;
+        }
+
+        // Check if there are any moves to undo
+        $logs = $this->getGame()->getLogs();
+        return count($logs) === 0;
     }
 
     /**

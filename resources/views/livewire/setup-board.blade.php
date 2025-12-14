@@ -20,11 +20,11 @@
     <button 
         type="button"
         class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
-        {{ $this->isStopDisabled() ? 'disabled' : '' }}
+        {{ $this->isFinishDisabled() ? 'disabled' : '' }}
         x-cloak
-        wire:click="stop"
+        wire:click="finish"
     >
-        Stop
+        Finish
     </button>
     <button 
         type="button"
@@ -34,6 +34,15 @@
         wire:click="pause"
     >
         {{ $this->pauseButtonText }}
+    </button>
+    <button 
+        type="button"
+        class="bg-sky-500 hover:bg-sky-700 w-full text-white px-4 font-semibold rounded-full cursor-pointer transition duration-500 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed"
+        {{ $this->isBackDisabled() ? 'disabled' : '' }}
+        x-cloak
+        wire:click="backOneMove"
+    >
+        Back one move
     </button>
     <button 
         type="button"
