@@ -16,5 +16,6 @@ use App\Livewire\SetupBoard;
 |
 */
 
-// Livewire components are typically accessed via their component tags
-// in Blade templates, but you can add custom routes here if necessary
+Route::get('/', function () {
+    return view('dashboard');
+})->name('dashboard');

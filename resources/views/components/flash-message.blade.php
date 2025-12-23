@@ -1,5 +1,5 @@
+<div>
     @if(session()->has('flash_notifications'))
-
     <!-- Modal overlay and content -->
     <div
         x-data="flashMessage({{ json_encode(session('flash_notifications')) }})"
@@ -41,6 +41,7 @@
         </div>
     </div>
     @endif
+</div>
 
 <script>
     document.addEventListener('alpine:init', () => {
