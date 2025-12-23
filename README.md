@@ -37,28 +37,18 @@ This application does **not require a database**. All game state is stored in se
    cp .env.example .env
    ```
 
-2. **Generate application key:**
-   ```bash
-   php artisan key:generate
-   ```
-
-3. **Configure environment variables:**
-   
-   Ensure your `.env` file has these settings (no database needed):
-   ```env
-   SESSION_DRIVER=file
-   CACHE_STORE=file
-   QUEUE_CONNECTION=sync
-   # DB_CONNECTION should be commented out or not set
-   ```
-
-4. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
    composer install
    npm install
    ```
 
-5. **Start the development server:**
+3. **Generate application key:**
+   ```bash
+   php artisan key:generate
+   ```
+
+4. **Start the development server:**
    ```bash
    composer run dev
    ```
@@ -69,13 +59,17 @@ This application does **not require a database**. All game state is stored in se
    - Queue worker (if needed)
    - Log viewer (Pail)
 
-   For production, build assets first:
-   ```bash
-   npm run build
-   php artisan serve
-   ```
-
 The application is now ready to use! No database migrations or setup required.
+
+### Production Build
+
+For production deployment, build the assets first:
+```bash
+npm run build
+php artisan serve
+```
+
+**Note:** The `.env.example` file is already configured to work without a database. The settings `SESSION_DRIVER=file`, `CACHE_STORE=file`, and `QUEUE_CONNECTION=sync` are already set correctly.
 
 ## Switching Implementations
 
