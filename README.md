@@ -26,6 +26,57 @@ The project is organized to support multiple implementations while sharing busin
 
 See [IMPLEMENTATION_STRUCTURE.md](IMPLEMENTATION_STRUCTURE.md) for detailed documentation.
 
+## Installation
+
+This application does **not require a database**. All game state is stored in session files.
+
+### Setup Steps
+
+1. **Copy environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Generate application key:**
+   ```bash
+   php artisan key:generate
+   ```
+
+3. **Configure environment variables:**
+   
+   Ensure your `.env` file has these settings (no database needed):
+   ```env
+   SESSION_DRIVER=file
+   CACHE_STORE=file
+   QUEUE_CONNECTION=sync
+   # DB_CONNECTION should be commented out or not set
+   ```
+
+4. **Install dependencies:**
+   ```bash
+   composer install
+   npm install
+   ```
+
+5. **Start the development server:**
+   ```bash
+   composer run dev
+   ```
+   
+   This command starts:
+   - Laravel development server
+   - Vite dev server with hot reload
+   - Queue worker (if needed)
+   - Log viewer (Pail)
+
+   For production, build assets first:
+   ```bash
+   npm run build
+   php artisan serve
+   ```
+
+The application is now ready to use! No database migrations or setup required.
+
 ## Switching Implementations
 
 You can switch between implementations by setting the `SUDOKU_IMPLEMENTATION` environment variable:
