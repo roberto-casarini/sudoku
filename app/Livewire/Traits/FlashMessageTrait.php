@@ -5,7 +5,7 @@ namespace App\Livewire\Traits;
 trait FlashMessageTrait
 {
     /**
-     * Send a flash message to the session.
+     * Send a flash message via Livewire event.
      * 
      * @param string $type The message type (success, error, warning, info)
      * @param string $title The message title
@@ -14,12 +14,15 @@ trait FlashMessageTrait
      */
     protected function sendMessage(string $type, string $title, string $message): void
     {
-        session()->flash('flash_notifications', [
+        $flashData = [
             'type' => $type,
             'title' => $title,
             'message' => $message,
             'timeout' => 3000
-        ]);
+        ];
+        
+        // Dispatch event to update FlashMessage component
+        $this->dispatch('flash-message', ...$flashData);
     }
 }
 

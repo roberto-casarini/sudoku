@@ -1,9 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Livewire\SudokuBoard;
-use App\Livewire\SelectNumber;
-use App\Livewire\SetupBoard;
 
 /*
 |--------------------------------------------------------------------------

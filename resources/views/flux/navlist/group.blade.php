@@ -11,7 +11,7 @@
     @if ($expanded === true) open @endif
     data-flux-navlist-group
 >
-    <button
+    <buttonapp-logo
         type="button"
         class="group/disclosure-button mb-[2px] flex h-10 w-full items-center rounded-lg text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 lg:h-8 dark:text-white/80 dark:hover:bg-white/[7%] dark:hover:text-white"
     >

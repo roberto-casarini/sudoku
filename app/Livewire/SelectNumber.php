@@ -66,8 +66,8 @@ class SelectNumber extends Component
         if ($this->cell === '') {
             $this->sendMessage(
                 'warning',
-                'Attenzione!',
-                'Devi selezionare una cella per inserire un numero!'
+                'Warning',
+                'You must select a cell to enter a number!'
             );
             return;
         }

@@ -16,9 +16,9 @@
 
                 <!-- Menu (esempio con Flex) -->
                 <nav class="hidden md:flex space-x-8"> <!-- Nascosto su mobile -->
-                    <a href="#" class="text-gray-600 hover:text-indigo-500">Home</a>
+                    <!-- <a href="#" class="text-gray-600 hover:text-indigo-500">Home</a>
                     <a href="#" class="text-gray-600 hover:text-indigo-500">Servizi</a>
-                    <a href="#" class="text-gray-600 hover:text-indigo-500">Contatti</a>
+                    <a href="#" class="text-gray-600 hover:text-indigo-500">Contatti</a> -->
                 </nav>
 
                 <!-- Bottone mobile (opzionale) -->

@@ -32,11 +32,11 @@ class PersistenceSession implements PersistenceInterface
         }
         
         // Create and store a new game if none exists
-            $data = new SudokuDTO();
+        $data = new SudokuDTO();
         $this->saveGame($data);
         
-            return $data;
-        }
+        return $data;
+    }
 
     /**
      * Save the game state to session.
