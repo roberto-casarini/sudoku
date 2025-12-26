@@ -1,8 +1,19 @@
 @php
     $implementation = config('sudoku.implementation', 'controllers');
+    $initialGameState = json_encode([
+        'cells' => $initialCells ?? [],
+        'game_status' => $initialGameStatus ?? 'beginning',
+    ]);
 @endphp
 
 <x-layouts.app :title="__('Dashboard')">
+    @if($implementation !== 'livewire')
+        {{-- Initialize Alpine store with server-side data before Alpine components load --}}
+        <script>
+            window.__INITIAL_GAME_STATE__ = {!! $initialGameState !!};
+        </script>
+    @endif
+    
     <div class="container grid grid-flow-col auto-cols-max gap-4 w-full justify-center mx-auto">
         @if($implementation === 'livewire')
             {{-- Livewire Implementation --}}

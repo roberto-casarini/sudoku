@@ -22,7 +22,12 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        return view('dashboard');
+        $game = app()->make(SudokuBL::class);
+        
+        return view('dashboard', [
+            'initialCells' => $game->getBoard()->getAllCells(),
+            'initialGameStatus' => $game->getStatus(),
+        ]);
     }
 
     /**

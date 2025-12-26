@@ -17,13 +17,10 @@
                 return Alpine.store('game').cells;
             },
             
-            async init() {
-                const game = Alpine.store('game');
-                await game.startGame();
-
-                //console.log(Alpine.raw(game.getCell('A-5')));
-                //console.log(this.processedCells());
-                //this.$watch('$store.game.cells', () => {});     
+            init() {
+                // Data is already loaded from server in app.js
+                // No need to call startGame() on init anymore
+                // startGame() can still be called manually if needed for refresh
             }
         }));
     });

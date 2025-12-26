@@ -5,9 +5,12 @@ window.Alpine = Alpine
 
 // Inizializza lo store (puoi metterlo in app.js o in uno script nella pagina)
 document.addEventListener('alpine:init', () => {
+    // Get initial state from server if available (for MVC implementation)
+    const initialState = window.__INITIAL_GAME_STATE__ || {};
+    
     Alpine.store('game', {
-        cells: [],
-        game_status: '',
+        cells: initialState.cells || [],
+        game_status: initialState.game_status || '',
         cell_selected: null,
         cell_selected_values: [],
         error: '',
