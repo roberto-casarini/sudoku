@@ -73,4 +73,44 @@ class SudokuDTO
 
         $this->status = $status;
     }
+
+    /**
+     * Serialize the DTO for session storage.
+     * 
+     * @return array The serialized data
+     */
+    public function __serialize(): array
+    {
+        return [
+            'board' => $this->board,
+            'status' => $this->status,
+            'createdAt' => $this->createdAt->toIso8601String(),
+            'logs' => $this->logs,
+        ];
+    }
+
+    /**
+     * Unserialize the DTO from session storage.
+     * 
+     * @param array $data The serialized data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->board = $data['board'] ?? new SudokuBoard();
+        $this->status = $data['status'] ?? self::BEGINNING_STATE;
+        
+        // Convert string back to Carbon instance
+        if (isset($data['createdAt'])) {
+            if ($data['createdAt'] instanceof Carbon) {
+                $this->createdAt = $data['createdAt'];
+            } else {
+                $this->createdAt = Carbon::parse($data['createdAt']);
+            }
+        } else {
+            $this->createdAt = Carbon::now();
+        }
+        
+        $this->logs = $data['logs'] ?? [];
+    }
 }

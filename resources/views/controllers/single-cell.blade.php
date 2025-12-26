@@ -146,7 +146,15 @@
             hasBorder(value) {
                 return this.borders.includes(value);
             },
-            setBorders() { 
+            setBorders() {
+                // Reset borders array first
+                this.borders = [];
+                
+                // Only set borders if we have valid coordinates
+                if (!this.xCoordinate || !this.yCoordinate) {
+                    return;
+                }
+                
                 switch (this.xCoordinate) {
                     case 'A':
                         this.borders.push('left');
@@ -187,9 +195,26 @@
             },  
             init() {
                 const obj = this;
-                this.$watch('cell', function () {
+                
+                // Set borders immediately if cell exists
+                if (obj.cell) {
                     obj.setBorders();
+                }
+                
+                // Watch for cell changes (when cells are loaded)
+                this.$watch('cell', function () {
+                    if (obj.cell) {
+                        obj.setBorders();
+                    }
                 });
+                
+                // Also watch for cells array changes (when startGame loads cells)
+                this.$watch('$store.game.cells', function () {
+                    if (obj.cell) {
+                        obj.setBorders();
+                    }
+                });
+                
                 this.$watch('$store.game.game_status', function (value) {
                     switch(value) {
                         case 'beginning':

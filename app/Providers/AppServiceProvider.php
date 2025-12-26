@@ -17,8 +17,8 @@ class AppServiceProvider extends ServiceProvider
         // Bind persistence interface
         $this->app->singleton(PersistenceInterface::class, PersistenceSession::class);
         
-        // Bind SudokuBL as singleton (shares state across requests)
-        $this->app->singleton(SudokuBL::class, function ($app) {
+        // Bind SudokuBL - NOT as singleton so each request gets fresh state from session
+        $this->app->bind(SudokuBL::class, function ($app) {
             return new SudokuBL($app->make(PersistenceInterface::class));
         });    
     }

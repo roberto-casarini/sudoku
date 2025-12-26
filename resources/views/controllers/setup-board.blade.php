@@ -60,7 +60,20 @@
         Alpine.data('setupBoard', () => ({
             state: 'beginning',
             init() {
-                this.$watch('$store.game.game_status', (value) => {this.state = value});     
+                const obj = this;
+                const store = Alpine.store('game');
+                
+                // Initialize state from store if available
+                if (store.game_status) {
+                    obj.state = store.game_status;
+                }
+                
+                // Watch for changes to store game_status
+                this.$watch('$store.game.game_status', function (value) {
+                    if (value) {
+                        obj.state = value;
+                    }
+                });
             },
             pauseButtonText() {
                 return "Pause";
@@ -86,12 +99,12 @@
             setStatus(state) {
                 const store = Alpine.store('game');
                 store.setStatus(state);
-                this.state = store.game_status;
+                // State will be updated via watch when store updates
             },
             resetGame() {
                 const store = Alpine.store('game');
                 store.resetGame();
-                this.state = store.game_status;
+                // State will be updated via watch when store updates
             },
             backOneMove() {
                 const store = Alpine.store('game');
